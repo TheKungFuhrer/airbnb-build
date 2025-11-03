@@ -1,5 +1,6 @@
 "use client";
 
+import useCities from "@/hook/useCities";
 import useCountries from "@/hook/useCountries";
 import { SafeReservation, SafeUser, safeListing } from "@/types";
 import { format } from "date-fns";
@@ -30,9 +31,11 @@ function ListingCard({
   currentUser,
 }: Props) {
   const router = useRouter();
-  const { getByValue } = useCountries();
+  const { getByValue: getCityByValue } = useCities();
+  const { getByValue: getCountryByValue } = useCountries();
 
-  const location = getByValue(data.locationValue);
+  // Try cities first, fall back to countries for backwards compatibility
+  const location = getCityByValue(data.locationValue) || getCountryByValue(data.locationValue);
 
   const handleCancel = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {

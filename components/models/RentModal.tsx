@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import Heading from "../Heading";
 import CategoryInput from "../inputs/CategoryInput";
 import Counter from "../inputs/Counter";
-import CountrySelect from "../inputs/CountrySelect";
+import CitySelect from "../inputs/CitySelect";
 import ImageUpload from "../inputs/ImageUpload";
 import Input from "../inputs/Input";
 import { categories } from "../navbar/Categories";
@@ -160,9 +160,9 @@ function RentModal({}: Props) {
       <div className="flex flex-col gap-8">
         <Heading
           title="Where is your event space located?"
-          subtitle="Help event organizers find your space!"
+          subtitle="Select the city where your space is located"
         />
-        <CountrySelect
+        <CitySelect
           value={location}
           onChange={(value) => setCustomValue("location", value)}
         />

@@ -1,5 +1,6 @@
 "use client";
 
+import useCities from "@/hook/useCities";
 import useCountries from "@/hook/useCountries";
 import { SafeUser } from "@/types";
 import { motion } from "framer-motion";
@@ -24,9 +25,12 @@ function ListingHead({
   id,
   currentUser,
 }: Props) {
-  const { getByValue } = useCountries();
-  const location = getByValue(locationValue);
+  const { getByValue: getCityByValue } = useCities();
+  const { getByValue: getCountryByValue } = useCountries();
   const router = useRouter();
+  
+  // Try cities first, fall back to countries for backwards compatibility
+  const location = getCityByValue(locationValue) || getCountryByValue(locationValue);
 
   return (
     <>

@@ -1,22 +1,25 @@
 "use client";
 
-import useCountries from "@/hook/useCountries";
-import useSearchModal from "@/hook/useSearchModal";
-import { differenceInDays } from "date-fns";
+import useCities from "@/hook/useCities";
+import useCityModal from "@/hook/useCityModal";
+import useDateModal from "@/hook/useDateModal";
+import useGuestModal from "@/hook/useGuestModal";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { BiSearch } from "react-icons/bi";
+import { guestTiers } from "@/components/inputs/GuestTierSelect";
 
 type Props = {};
 
 function Search({}: Props) {
-  const searchModel = useSearchModal();
+  const cityModal = useCityModal();
+  const dateModal = useDateModal();
+  const guestModal = useGuestModal();
   const params = useSearchParams();
-  const { getByValue } = useCountries();
+  const { getByValue } = useCities();
 
   const locationValue = params?.get("locationValue");
   const startDate = params?.get("startDate");
-  const endDate = params?.get("endDate");
   const guestCount = params?.get("guestCount");
 
   const locationLabel = useMemo(() => {
@@ -24,45 +27,67 @@ function Search({}: Props) {
       return getByValue(locationValue as string)?.label;
     }
 
-    return "Anywhere";
+    return "Any City";
   }, [getByValue, locationValue]);
 
   const durationLabel = useMemo(() => {
-    if (startDate && endDate) {
-      const start = new Date(startDate as string);
-      const end = new Date(endDate as string);
-      let diff = differenceInDays(end, start);
-
-      if (diff === 0) {
-        diff = 1;
-      }
-
-      return `${diff} Days`;
+    if (startDate) {
+      const date = new Date(startDate as string);
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined 
+      });
     }
 
-    return "Any Week";
-  }, [startDate, endDate]);
+    return "Any Date";
+  }, [startDate]);
 
   const guessLabel = useMemo(() => {
     if (guestCount) {
-      return `${guestCount} Guests`;
+      const tier = guestTiers.find(t => t.value === Number(guestCount));
+      return tier ? tier.label : `${guestCount} Guests`;
     }
 
     return "Add Guests";
   }, [guestCount]);
 
   return (
-    <div
-      onClick={searchModel.onOpen}
-      className="border-[1px] w-full md:w-auto py-2 rounded-full shadow-sm hover:shadow-md transition cursor-pointer"
-    >
+    <div className="border-[1px] w-full md:w-auto py-2 rounded-full shadow-sm hover:shadow-md transition">
       <div className="flex flex-row items-center justify-between">
-        <div className="text-sm font-semibold px-6">{locationLabel}</div>
-        <div className="hidden sm:block text-losm font-semibold px-6 border-x-[1px] flex-1 text-center">
+        {/* City Filter */}
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            cityModal.onOpen();
+          }}
+          className="text-sm font-semibold px-6 cursor-pointer hover:bg-gray-100 rounded-full py-2 transition"
+        >
+          {locationLabel}
+        </div>
+
+        {/* Date Filter */}
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            dateModal.onOpen();
+          }}
+          className="hidden sm:block text-sm font-semibold px-6 border-x-[1px] flex-1 text-center cursor-pointer hover:bg-gray-100 py-2 transition"
+        >
           {durationLabel}
         </div>
+
+        {/* Guest Filter */}
         <div className="text-sm pl-6 pr-2 text-gray-600 flex flex-row items-center gap-3">
-          <div className="hidden sm:block text-center">{guessLabel}</div>
+          <div 
+            onClick={(e) => {
+              e.stopPropagation();
+              guestModal.onOpen();
+            }}
+            className="hidden sm:block text-center cursor-pointer hover:bg-gray-100 rounded-full px-4 py-2 transition"
+          >
+            {guessLabel}
+          </div>
           <div className="p-2 bg-rose-500 rounded-full text-white">
             <BiSearch size={18} />
           </div>
