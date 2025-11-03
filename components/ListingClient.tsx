@@ -38,8 +38,8 @@ function ListingClient({ reservations = [], listing, currentUser }: Props) {
 
     reservations.forEach((reservation) => {
       const range = eachDayOfInterval({
-        start: new Date(reservation.startDate),
-        end: new Date(reservation.endDate),
+        start: new Date(reservation.startTime),
+        end: new Date(reservation.endTime),
       });
 
       dates = [...dates, ...range];
@@ -49,8 +49,9 @@ function ListingClient({ reservations = [], listing, currentUser }: Props) {
   }, [reservations]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [totalPrice, setTotalPrice] = useState(listing.price);
+  const [totalPrice, setTotalPrice] = useState(listing.hourlyRate * listing.minimumHours);
   const [dateRange, setDateRange] = useState<Range>(initialDateRange);
+  const [selectedHours, setSelectedHours] = useState(listing.minimumHours || 2);
 
   const onCreateReservation = useCallback(() => {
     if (!currentUser) {
@@ -59,11 +60,21 @@ function ListingClient({ reservations = [], listing, currentUser }: Props) {
 
     setIsLoading(true);
 
+    const startTime = dateRange.startDate;
+    const endTime = new Date(dateRange.startDate?.getTime() || 0);
+    endTime.setHours(endTime.getHours() + selectedHours);
+
     axios
       .post("/api/reservations", {
         totalPrice,
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
+        startTime,
+        endTime,
+        durationHours: selectedHours,
+        hourlyRate: listing.hourlyRate,
+        cleaningFee: listing.cleaningFee || 0,
+        serviceFee: 0,
+        eventType: listing.category,
+        guestCount: listing.capacity,
         listingId: listing?.id,
       })
       .then(() => {
@@ -80,19 +91,13 @@ function ListingClient({ reservations = [], listing, currentUser }: Props) {
   }, [totalPrice, dateRange, listing?.id, router, currentUser, loginModal]);
 
   useEffect(() => {
-    if (dateRange.startDate && dateRange.endDate) {
-      const dayCount = differenceInCalendarDays(
-        dateRange.endDate,
-        dateRange.startDate
-      );
-
-      if (dayCount && listing.price) {
-        setTotalPrice(dayCount * listing.price);
-      } else {
-        setTotalPrice(listing.price);
-      }
+    if (selectedHours) {
+      const subtotal = selectedHours * listing.hourlyRate;
+      const cleaningFee = listing.cleaningFee || 0;
+      const serviceFee = Math.round(subtotal * 0.1); // 10% service fee
+      setTotalPrice(subtotal + cleaningFee + serviceFee);
     }
-  }, [dateRange, listing.price]);
+  }, [selectedHours, listing.hourlyRate, listing.cleaningFee]);
 
   const category = useMemo(() => {
     return categories.find((item) => item.label === listing.category);
@@ -114,20 +119,29 @@ function ListingClient({ reservations = [], listing, currentUser }: Props) {
               user={listing.user}
               category={category}
               description={listing.description}
+              capacity={listing.capacity}
               roomCount={listing.roomCount}
-              guestCount={listing.guestCount}
               bathroomCount={listing.bathroomCount}
+              squareFootage={listing.squareFootage}
+              hourlyRate={listing.hourlyRate}
+              minimumHours={listing.minimumHours}
               locationValue={listing.locationValue}
+              instantBook={listing.instantBook}
+              sameDayBooking={listing.sameDayBooking}
+              wifiAvailable={listing.wifiAvailable}
+              parking={listing.parking}
             />
             <div className="order-first mb-10 md:order-last md:col-span-3">
               <ListingReservation
-                price={listing.price}
+                hourlyRate={listing.hourlyRate}
+                minimumHours={listing.minimumHours}
                 totalPrice={totalPrice}
                 onChangeDate={(value) => setDateRange(value)}
                 dateRange={dateRange}
                 onSubmit={onCreateReservation}
                 disabled={isLoading}
                 disabledDates={disableDates}
+                selectedHours={selectedHours}
               />
             </div>
           </div>

@@ -4,8 +4,10 @@ const nextConfig = {
     appDir: true,
   },
   images: {
-    domains: ["lh3.googleusercontent.com", "res.cloudinary.com"],
+    domains: ["lh3.googleusercontent.com", "res.cloudinary.com", "ui-avatars.com"],
   },
+  // Disable static export for dynamic pages that use authentication
+  output: undefined,
 };
 
 module.exports = nextConfig;

@@ -18,9 +18,9 @@ type Props = {
   user: SafeUser;
   description: string;
   capacity: number;
-  roomCount?: number;
+  roomCount?: number | null;
   bathroomCount: number;
-  squareFootage?: number;
+  squareFootage?: number | null;
   hourlyRate: number;
   minimumHours: number;
   category:
@@ -34,7 +34,7 @@ type Props = {
   instantBook?: boolean;
   sameDayBooking?: boolean;
   wifiAvailable?: boolean;
-  parking?: string;
+  parking?: string | null;
 };
 
 function ListingInfo({
