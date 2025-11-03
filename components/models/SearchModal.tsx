@@ -6,12 +6,11 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 import { useCallback, useMemo, useState } from "react";
-import { Range } from "react-date-range";
 
 import Heading from "../Heading";
-import Calendar from "../inputs/Calendar";
-import Counter from "../inputs/Counter";
-import CountrySelect, { CountrySelectValue } from "../inputs/CountrySelect";
+import SingleDateCalendar from "../inputs/SingleDateCalendar";
+import CitySelect, { CitySelectValue } from "../inputs/CitySelect";
+import GuestTierSelect from "../inputs/GuestTierSelect";
 import Modal from "./Modal";
 
 enum STEPS {
@@ -27,16 +26,10 @@ function SearchModal({}: Props) {
   const params = useSearchParams();
   const searchModel = useSearchModal();
 
-  const [location, setLocation] = useState<CountrySelectValue>();
+  const [location, setLocation] = useState<CitySelectValue>();
   const [step, setStep] = useState(STEPS.LOCATION);
-  const [guestCount, setGuestCount] = useState(1);
-  const [roomCount, setRoomCount] = useState(1);
-  const [bathroomCount, setBathroomCount] = useState(1);
-  const [dateRange, setDateRange] = useState<Range>({
-    startDate: new Date(),
-    endDate: new Date(),
-    key: "selection",
-  });
+  const [guestCount, setGuestCount] = useState<number>();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const Map = useMemo(
     () =>
@@ -69,16 +62,10 @@ function SearchModal({}: Props) {
       ...currentQuery,
       locationValue: location?.value,
       guestCount,
-      roomCount,
-      bathroomCount,
     };
 
-    if (dateRange.startDate) {
-      updatedQuery.startDate = formatISO(dateRange.startDate);
-    }
-
-    if (dateRange.endDate) {
-      updatedQuery.endDate = formatISO(dateRange.endDate);
+    if (selectedDate) {
+      updatedQuery.startDate = formatISO(selectedDate);
     }
 
     const url = qs.stringifyUrl(
@@ -99,9 +86,7 @@ function SearchModal({}: Props) {
     location,
     router,
     guestCount,
-    roomCount,
-    bathroomCount,
-    dateRange,
+    selectedDate,
     onNext,
     params,
   ]);
@@ -125,12 +110,12 @@ function SearchModal({}: Props) {
   let bodyContent = (
     <div className="flex flex-col gap-8">
       <Heading
-        title="Where do you wanna go?"
-        subtitle="Find the perfect location!"
+        title="Where's your event?"
+        subtitle="Find the perfect city for your event space"
       />
-      <CountrySelect
+      <CitySelect
         value={location}
-        onChange={(value) => setLocation(value as CountrySelectValue)}
+        onChange={(value) => setLocation(value as CitySelectValue)}
       />
       <hr />
       <Map center={location?.latlng} />
@@ -141,12 +126,12 @@ function SearchModal({}: Props) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="When do you plan to go?"
-          subtitle="Make sure everyone is free!"
+          title="When is your event?"
+          subtitle="Select the date for your event"
         />
-        <Calendar
-          onChange={(value) => setDateRange(value.selection)}
-          value={dateRange}
+        <SingleDateCalendar
+          onChange={(value) => setSelectedDate(value)}
+          value={selectedDate}
         />
       </div>
     );
@@ -155,28 +140,9 @@ function SearchModal({}: Props) {
   if (step === STEPS.INFO) {
     bodyContent = (
       <div className="flex flex-col gap-8">
-        <Heading title="More information" subtitle="Find your perfect place!" />
-        <Counter
-          onChange={(value) => setGuestCount(value)}
+        <GuestTierSelect
           value={guestCount}
-          title="Guests"
-          subtitle="How many guests are coming?"
-        />
-        <hr />
-        <Counter
-          onChange={(value) => setRoomCount(value)}
-          value={roomCount}
-          title="Rooms"
-          subtitle="How many rooms do you need?"
-        />
-        <hr />
-        <Counter
-          onChange={(value) => {
-            setBathroomCount(value);
-          }}
-          value={bathroomCount}
-          title="Bathrooms"
-          subtitle="How many bahtrooms do you need?"
+          onChange={(value) => setGuestCount(value)}
         />
       </div>
     );

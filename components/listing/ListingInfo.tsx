@@ -1,5 +1,6 @@
 "use client";
 
+import useCities from "@/hook/useCities";
 import useCountries from "@/hook/useCountries";
 import { SafeUser } from "@/types";
 import dynamic from "next/dynamic";
@@ -52,8 +53,12 @@ function ListingInfo({
   wifiAvailable,
   parking,
 }: Props) {
-  const { getByValue } = useCountries();
-  const coordinates = getByValue(locationValue)?.latlng;
+  const { getByValue: getCityByValue } = useCities();
+  const { getByValue: getCountryByValue } = useCountries();
+  
+  // Try cities first, fall back to countries for backwards compatibility
+  const location = getCityByValue(locationValue) || getCountryByValue(locationValue);
+  const coordinates = location?.latlng;
 
   return (
     <div className="col-span-4 flex flex-col gap-8">
