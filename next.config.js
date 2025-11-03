@@ -4,7 +4,13 @@ const nextConfig = {
     appDir: true,
   },
   images: {
-    domains: ["lh3.googleusercontent.com", "res.cloudinary.com", "ui-avatars.com"],
+    domains: [
+      "lh3.googleusercontent.com", 
+      "res.cloudinary.com", 
+      "ui-avatars.com",
+      "source.unsplash.com",
+      "images.unsplash.com"
+    ],
   },
   // Disable static export for dynamic pages that use authentication
   output: undefined,
