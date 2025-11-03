@@ -1,99 +1,109 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { BsSnow } from "react-icons/bs";
-import { FaSkiing } from "react-icons/fa";
-import {
-  GiBarn,
-  GiBoatFishing,
-  GiCactus,
-  GiCastle,
-  GiCaveEntrance,
-  GiForestCamp,
-  GiIsland,
-  GiWindmill,
+import { 
+  MdOutlinePhotoCamera,
+  MdMeetingRoom,
+  MdCelebration,
+  MdTheaterComedy,
+  MdStorefront,
+  MdMovie,
+} from "react-icons/md";
+import { 
+  HiUserGroup,
+  HiAcademicCap,
+} from "react-icons/hi";
+import { 
+  BsCalendarEvent,
+  BsPalette,
+} from "react-icons/bs";
+import { 
+  FaMicrophoneAlt,
+  FaDumbbell,
+} from "react-icons/fa";
+import { 
+  GiPartyPopper,
+  GiFilmProjector,
 } from "react-icons/gi";
 import { IoDiamond } from "react-icons/io5";
-import { MdOutlineVilla } from "react-icons/md";
-import { TbBeach, TbMountain, TbPool } from "react-icons/tb";
 import CategoryBox from "../CategoryBox";
 import Container from "../Container";
 
 export const categories = [
   {
-    label: "Beach",
-    icon: TbBeach,
-    description: "This property is close to the beach!",
+    label: "Photoshoot",
+    icon: MdOutlinePhotoCamera,
+    description: "Perfect space for photography sessions and content creation",
   },
   {
-    label: "Windmills",
-    icon: GiWindmill,
-    description: "This property is has windmills!",
+    label: "Meeting",
+    icon: MdMeetingRoom,
+    description: "Professional meeting rooms for business gatherings",
   },
   {
-    label: "Modern",
-    icon: MdOutlineVilla,
-    description: "This property is modern!",
+    label: "Party",
+    icon: GiPartyPopper,
+    description: "Celebrate in style with private party spaces",
   },
   {
-    label: "Countryside",
-    icon: TbMountain,
-    description: "This property is in the countryside!",
+    label: "Workshop",
+    icon: HiAcademicCap,
+    description: "Educational workshops and training sessions",
   },
   {
-    label: "Pools",
-    icon: TbPool,
-    description: "This is property has a beautiful pool!",
+    label: "Popup",
+    icon: MdStorefront,
+    description: "Temporary retail spaces for pop-up shops",
   },
   {
-    label: "Islands",
-    icon: GiIsland,
-    description: "This property is on an island!",
+    label: "Film Production",
+    icon: GiFilmProjector,
+    description: "Professional filming and video production spaces",
   },
   {
-    label: "Lake",
-    icon: GiBoatFishing,
-    description: "This property is near a lake!",
+    label: "Corporate Event",
+    icon: HiUserGroup,
+    description: "Large corporate events and conferences",
   },
   {
-    label: "Skiing",
-    icon: FaSkiing,
-    description: "This property has skiing activies!",
+    label: "Music Recording",
+    icon: FaMicrophoneAlt,
+    description: "Soundproof studios for music and podcast recording",
   },
   {
-    label: "Castles",
-    icon: GiCastle,
-    description: "This property is an ancient castle!",
+    label: "Art Exhibition",
+    icon: BsPalette,
+    description: "Gallery spaces for showcasing artwork",
   },
   {
-    label: "Caves",
-    icon: GiCaveEntrance,
-    description: "This property is in a spooky cave!",
+    label: "Fitness Class",
+    icon: FaDumbbell,
+    description: "Spaces for yoga, dance, and fitness classes",
   },
   {
-    label: "Camping",
-    icon: GiForestCamp,
-    description: "This property offers camping activities!",
+    label: "Performance",
+    icon: MdTheaterComedy,
+    description: "Stages and venues for live performances",
   },
   {
-    label: "Arctic",
-    icon: BsSnow,
-    description: "This property is in arctic environment!",
+    label: "Social Event",
+    icon: BsCalendarEvent,
+    description: "Versatile spaces for social gatherings",
   },
   {
-    label: "Desert",
-    icon: GiCactus,
-    description: "This property is in the desert!",
+    label: "Product Launch",
+    icon: MdCelebration,
+    description: "Launch your products in memorable spaces",
   },
   {
-    label: "Barns",
-    icon: GiBarn,
-    description: "This property is in a barn!",
+    label: "Content Studio",
+    icon: MdMovie,
+    description: "Equipped studios for content creators",
   },
   {
-    label: "Lux",
+    label: "Luxury Event",
     icon: IoDiamond,
-    description: "This property is brand new and luxurious!",
+    description: "Premium spaces for high-end events",
   },
 ];
 

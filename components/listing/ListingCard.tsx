@@ -50,18 +50,18 @@ function ListingCard({
       return reservation.totalPrice;
     }
 
-    return data.price;
-  }, [reservation, data.price]);
+    return data.hourlyRate;
+  }, [reservation, data.hourlyRate]);
 
   const reservationDate = useMemo(() => {
     if (!reservation) {
       return null;
     }
 
-    const start = new Date(reservation.startDate);
-    const end = new Date(reservation.endDate);
+    const start = new Date(reservation.startTime);
+    const end = new Date(reservation.endTime);
 
-    return `${format(start, "PP")} - ${format(end, "PP")}`;
+    return `${format(start, "PPp")} - ${format(end, "p")}`;
   }, [reservation]);
 
   return (
@@ -94,10 +94,15 @@ function ListingCard({
         <div className="font-light text-neutral-500">
           {reservationDate || data.category}
         </div>
-        <div className="flex flex-row items-center gap-">
+        <div className="flex flex-row items-center gap-1">
           <div className="flex gap-1 font-semibold">
-            ${price} {!reservation && <div className="font-light"> Night</div>}
+            ${price} {!reservation && <div className="font-light">/hour</div>}
           </div>
+          {!reservation && data.minimumHours && (
+            <div className="text-xs text-neutral-500">
+              ({data.minimumHours}h min)
+            </div>
+          )}
         </div>
         {onAction && actionLabel && (
           <Button

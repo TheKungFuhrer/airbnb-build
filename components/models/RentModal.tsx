@@ -45,21 +45,29 @@ function RentModal({}: Props) {
     defaultValues: {
       category: "",
       location: null,
-      guestCount: 1,
+      capacity: 10,
       roomCount: 1,
       bathroomCount: 1,
+      squareFootage: 500,
       imageSrc: "",
-      price: 1,
+      hourlyRate: 50,
+      minimumHours: 2,
+      cleaningFee: 0,
       title: "",
       description: "",
+      instantBook: false,
+      sameDayBooking: true,
+      wifiAvailable: true,
+      parking: "",
     },
   });
 
   const category = watch("category");
   const location = watch("location");
-  const guestCount = watch("guestCount");
+  const capacity = watch("capacity");
   const roomCount = watch("roomCount");
   const bathroomCount = watch("bathroomCount");
+  const squareFootage = watch("squareFootage");
   const imageSrc = watch("imageSrc");
 
   const Map = useMemo(
@@ -129,8 +137,8 @@ function RentModal({}: Props) {
   let bodyContent = (
     <div className="flex flex-col gap-8">
       <Heading
-        title="Which of these best describes your place?"
-        subtitle="Pick a category"
+        title="What type of event space are you listing?"
+        subtitle="Pick a category that best describes your space"
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-[#FF5A5F]">
         {categories.map((item, index) => (
@@ -151,8 +159,8 @@ function RentModal({}: Props) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Where is your place located?"
-          subtitle="Help guests find you!"
+          title="Where is your event space located?"
+          subtitle="Help event organizers find your space!"
         />
         <CountrySelect
           value={location}
@@ -167,26 +175,33 @@ function RentModal({}: Props) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Share some basics about your place"
-          subtitle="What amenities do you have?"
+          title="Share some basics about your space"
+          subtitle="What's the capacity and size?"
         />
         <Counter
-          title="Guests"
-          subtitle="How many guest do you allow?"
-          value={guestCount}
-          onChange={(value) => setCustomValue("guestCount", value)}
+          title="Capacity"
+          subtitle="Maximum number of guests/attendees"
+          value={capacity}
+          onChange={(value) => setCustomValue("capacity", value)}
+        />
+        <hr />
+        <Counter
+          title="Square Footage"
+          subtitle="Approximate size of your space (sq ft)"
+          value={squareFootage}
+          onChange={(value) => setCustomValue("squareFootage", value)}
         />
         <hr />
         <Counter
           title="Rooms"
-          subtitle="How many rooms do you have?"
+          subtitle="Number of separate areas (optional)"
           value={roomCount}
           onChange={(value) => setCustomValue("roomCount", value)}
         />
         <hr />
         <Counter
           title="Bathrooms"
-          subtitle="How many Bathrooms do you have?"
+          subtitle="How many bathrooms are available?"
           value={bathroomCount}
           onChange={(value) => setCustomValue("bathroomCount", value)}
         />
@@ -198,8 +213,8 @@ function RentModal({}: Props) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Add a photo of your place"
-          subtitle="Show guests what your place looks like!"
+          title="Add photos of your space"
+          subtitle="Show event organizers what your space looks like!"
         />
         <ImageUpload
           onChange={(value) => setCustomValue("imageSrc", value)}
@@ -213,8 +228,8 @@ function RentModal({}: Props) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Now, set your price"
-          subtitle="How much do you charge per night?"
+          title="Describe your space"
+          subtitle="Tell event organizers about your space"
         />
         <Input
           id="title"
@@ -241,18 +256,38 @@ function RentModal({}: Props) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Now, set your price"
-          subtitle="How much do you charge per night?"
+          title="Set your hourly rate"
+          subtitle="How much do you charge per hour?"
         />
         <Input
-          id="price"
-          label="Price"
+          id="hourlyRate"
+          label="Hourly Rate"
           formatPrice
           type="number"
           disabled={isLoading}
           register={register}
           errors={errors}
           required
+        />
+        <hr />
+        <Input
+          id="minimumHours"
+          label="Minimum Hours"
+          type="number"
+          disabled={isLoading}
+          register={register}
+          errors={errors}
+          required
+        />
+        <hr />
+        <Input
+          id="cleaningFee"
+          label="Cleaning Fee (optional)"
+          formatPrice
+          type="number"
+          disabled={isLoading}
+          register={register}
+          errors={errors}
         />
       </div>
     );
@@ -262,7 +297,7 @@ function RentModal({}: Props) {
     <Modal
       disabled={isLoading}
       isOpen={rentModel.isOpen}
-      title="Airbnb your home!"
+      title="List your event space!"
       actionLabel={actionLabel}
       onSubmit={handleSubmit(onSubmit)}
       secondaryActionLabel={secondActionLabel}
