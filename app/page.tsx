@@ -5,6 +5,10 @@ import ListingCard from "@/components/listing/ListingCard";
 import getCurrentUser from "./actions/getCurrentUser";
 import getListings, { IListingsParams } from "./actions/getListings";
 
+// Force dynamic rendering (disable static generation)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface HomeProps {
   searchParams: IListingsParams;
 }
