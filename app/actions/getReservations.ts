@@ -4,11 +4,12 @@ interface IParams {
   listingId?: string;
   userId?: string;
   authorId?: string;
+  status?: string; // Filter by booking status
 }
 
 export default async function getReservation(params: IParams) {
   try {
-    const { listingId, userId, authorId } = params;
+    const { listingId, userId, authorId, status } = params;
 
     const query: any = {};
 
@@ -24,6 +25,11 @@ export default async function getReservation(params: IParams) {
       query.listing = { userId: authorId };
     }
 
+    // Filter by reservation status
+    if (status) {
+      query.status = status;
+    }
+
     const reservation = await prisma.reservation.findMany({
       where: query,
       include: {
@@ -37,11 +43,13 @@ export default async function getReservation(params: IParams) {
     const safeReservations = reservation.map((reservation) => ({
       ...reservation,
       createdAt: reservation.createdAt.toISOString(),
-      startDate: reservation.startDate.toISOString(),
-      endDate: reservation.endDate.toISOString(),
+      updatedAt: reservation.updatedAt.toISOString(),
+      startTime: reservation.startTime.toISOString(), // Changed from startDate
+      endTime: reservation.endTime.toISOString(), // Changed from endDate
       listing: {
         ...reservation.listing,
         createdAt: reservation.listing.createdAt.toISOString(),
+        updatedAt: reservation.listing.updatedAt.toISOString(),
       },
     }));
 

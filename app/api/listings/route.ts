@@ -14,34 +14,75 @@ export async function POST(request: Request) {
     title,
     description,
     imageSrc,
+    images,
     category,
     roomCount,
     bathroomCount,
-    guestCount,
+    capacity,
+    squareFootage,
     location,
-    price,
+    address,
+    floor,
+    accessInstructions,
+    hourlyRate,
+    minimumHours,
+    cleaningFee,
+    amenities,
+    lighting,
+    equipment,
+    furniture,
+    instantBook,
+    sameDayBooking,
+    turnaroundTime,
+    rules,
+    allowedActivities,
+    parking,
+    accessibility,
+    wifiAvailable,
+    kitchenAvailable,
+    outdoorSpace,
   } = body;
 
-  Object.keys(body).forEach((value: any) => {
-    if (!body[value]) {
-      NextResponse.error();
-    }
-  });
+  // Validate required fields for event spaces
+  if (!title || !description || !imageSrc || !category || !capacity || !hourlyRate) {
+    return NextResponse.error();
+  }
 
-  const listen = await prisma.listing.create({
+  const listing = await prisma.listing.create({
     data: {
       title,
       description,
       imageSrc,
+      images: images || [],
       category,
-      roomCount,
-      bathroomCount,
-      guestCount,
+      roomCount: roomCount || null,
+      bathroomCount: bathroomCount || 1,
+      capacity: parseInt(capacity, 10),
+      squareFootage: squareFootage ? parseInt(squareFootage, 10) : null,
       locationValue: location.value,
-      price: parseInt(price, 10),
+      address: address || null,
+      floor: floor || null,
+      accessInstructions: accessInstructions || null,
+      hourlyRate: parseInt(hourlyRate, 10),
+      minimumHours: minimumHours ? parseInt(minimumHours, 10) : 2,
+      cleaningFee: cleaningFee ? parseInt(cleaningFee, 10) : 0,
+      amenities: amenities || [],
+      lighting: lighting || [],
+      equipment: equipment || [],
+      furniture: furniture || [],
+      instantBook: instantBook || false,
+      sameDayBooking: sameDayBooking !== false, // Default to true
+      turnaroundTime: turnaroundTime ? parseInt(turnaroundTime, 10) : 2,
+      rules: rules || [],
+      allowedActivities: allowedActivities || [],
+      parking: parking || null,
+      accessibility: accessibility || false,
+      wifiAvailable: wifiAvailable !== false, // Default to true
+      kitchenAvailable: kitchenAvailable || false,
+      outdoorSpace: outdoorSpace || false,
       userId: currentUser.id,
     },
   });
 
-  return NextResponse.json(listen);
+  return NextResponse.json(listing);
 }
