@@ -11,31 +11,31 @@ export interface GuestTier {
 
 export const guestTiers: GuestTier[] = [
   {
-    value: 6,
+    value: 1,
     label: "Private Affair",
     description: "Intimate setting for small groups",
     range: "1-6 guests"
   },
   {
-    value: 24,
+    value: 7,
     label: "Intimate Gathering",
     description: "Perfect for close friends and family",
     range: "7-24 guests"
   },
   {
-    value: 49,
+    value: 25,
     label: "Social Soirée",
     description: "Comfortable mid-sized event",
     range: "25-49 guests"
   },
   {
-    value: 99,
+    value: 50,
     label: "Signature Event",
     description: "Large-scale celebration",
     range: "50-99 guests"
   },
   {
-    value: 999,
+    value: 100,
     label: "Grand Affair",
     description: "Spectacular large gathering",
     range: "100+ guests"
