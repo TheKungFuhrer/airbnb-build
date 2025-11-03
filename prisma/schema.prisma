@@ -20,6 +20,9 @@ model User {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   favoriteIds    String[]      @db.ObjectId
+  userType       String?       @default("guest") // guest, host, photographer, event_planner, meeting_organizer
+  phoneNumber    String?
+  businessName   String?       // For event planners/photographers
   accounts       Account[]
   listings       Listing[]
   reservations   Reservation[]
@@ -44,30 +47,106 @@ model Account {
 }
 
 model Listing {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String
-  imageSrc      String
-  createdAt     DateTime      @default(now())
-  category      String
-  roomCount     Int
-  bathroomCount Int
-  guestCount    Int
-  locationValue String
-  userId        String        @db.ObjectId
-  price         Int
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reservations  Reservation[]
+  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
+  title              String
+  description        String
+  imageSrc           String
+  images             String[]      @default([]) // Multiple images for event spaces
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  category           String        // photoshoot, meeting, party, workshop, popup, film_production
+  
+  // Space Details
+  squareFootage      Int?
+  capacity           Int           // Maximum guest/attendee capacity
+  roomCount          Int?          // Optional: number of rooms/areas
+  bathroomCount      Int
+  
+  // Location
+  locationValue      String
+  address            String?
+  floor              String?
+  accessInstructions String?
+  
+  // Pricing - HOURLY MODEL
+  hourlyRate         Int           // Price per hour in cents
+  minimumHours       Int           @default(2) // Minimum booking duration
+  cleaningFee        Int           @default(0)
+  
+  // Event-Specific Amenities
+  amenities          String[]      @default([]) // Array of amenity IDs/names
+  lighting           String[]      @default([]) // natural_light, studio_lights, ring_lights, etc.
+  equipment          String[]      @default([]) // projector, sound_system, whiteboard, etc.
+  furniture          String[]      @default([]) // chairs, tables, couches, etc.
+  
+  // Availability & Rules
+  instantBook        Boolean       @default(false)
+  sameDayBooking     Boolean       @default(true)
+  turnaroundTime     Int           @default(2) // Hours between bookings for cleanup
+  rules              String[]      @default([])
+  allowedActivities  String[]      @default([]) // photography, filming, events, meetings
+  
+  // Additional Features
+  parking            String?       // street, garage, lot, none
+  accessibility      Boolean       @default(false)
+  wifiAvailable      Boolean       @default(true)
+  kitchenAvailable   Boolean       @default(false)
+  outdoorSpace       Boolean       @default(false)
+  
+  userId             String        @db.ObjectId
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations       Reservation[]
+  availability       Availability[]
 }
 
 model Reservation {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String   @db.ObjectId
-  listingId  String   @db.ObjectId
-  startDate  DateTime
-  endDate    DateTime
-  totalPrice Int
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  listingId       String   @db.ObjectId
+  
+  // Hourly Booking Times
+  startTime       DateTime // Specific start date-time (e.g., 2024-03-15 14:00)
+  endTime         DateTime // Specific end date-time (e.g., 2024-03-15 18:00)
+  durationHours   Int      // Total hours booked
+  
+  // Pricing Breakdown
+  hourlyRate      Int      // Rate at time of booking
+  totalPrice      Int      // Total cost including fees
+  cleaningFee     Int      @default(0)
+  serviceFee      Int      @default(0)
+  
+  // Event Details
+  eventType       String   // photoshoot, meeting, party, workshop, etc.
+  guestCount      Int      // Expected number of attendees
+  eventDetails    String?  // Additional notes from renter
+  
+  // Booking Status
+  status          String   @default("pending") // pending, confirmed, completed, cancelled
+  instantBooked   Boolean  @default(false)
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// New model for managing space availability
+model Availability {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  listingId   String   @db.ObjectId
+  
+  // Day of week availability
+  dayOfWeek   Int      // 0 = Sunday, 1 = Monday, etc.
+  startTime   String   // "09:00"
+  endTime     String   // "22:00"
+  
+  // Or specific date blocks
+  blockDate   DateTime?
+  isBlocked   Boolean  @default(false) // true = unavailable
+  
+  createdAt   DateTime @default(now())
+  
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
