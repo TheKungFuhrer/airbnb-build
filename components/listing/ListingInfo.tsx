@@ -17,9 +17,12 @@ const Map = dynamic(() => import("../Map"), {
 type Props = {
   user: SafeUser;
   description: string;
-  guestCount: number;
-  roomCount: number;
+  capacity: number;
+  roomCount?: number;
   bathroomCount: number;
+  squareFootage?: number;
+  hourlyRate: number;
+  minimumHours: number;
   category:
     | {
         icon: IconType;
@@ -28,16 +31,27 @@ type Props = {
       }
     | undefined;
   locationValue: string;
+  instantBook?: boolean;
+  sameDayBooking?: boolean;
+  wifiAvailable?: boolean;
+  parking?: string;
 };
 
 function ListingInfo({
   user,
   description,
-  guestCount,
+  capacity,
   roomCount,
   bathroomCount,
+  squareFootage,
+  hourlyRate,
+  minimumHours,
   category,
   locationValue,
+  instantBook,
+  sameDayBooking,
+  wifiAvailable,
+  parking,
 }: Props) {
   const { getByValue } = useCountries();
   const coordinates = getByValue(locationValue)?.latlng;
@@ -46,13 +60,20 @@ function ListingInfo({
     <div className="col-span-4 flex flex-col gap-8">
       <div className="flex flex-col gap-2">
         <div className=" text-xl font-semibold flex flex-row items-center gap-2">
-          <div>Hosted by {user?.name}</div>
+          <div>Space hosted by {user?.name}</div>
           <Avatar src={user?.image} userName={user?.name} />
         </div>
         <div className="flex flex-row items-center gap-4 font-light text-neutral-500">
-          <p>{guestCount} guests</p>
-          <p>{roomCount} rooms</p>
+          <p>Up to {capacity} guests</p>
+          {squareFootage && <p>{squareFootage} sq ft</p>}
+          {roomCount && roomCount > 0 && <p>{roomCount} rooms</p>}
           <p>{bathroomCount} bathrooms</p>
+        </div>
+        <div className="flex flex-row items-center gap-4 font-semibold text-rose-500 mt-2">
+          <p>${hourlyRate}/hour</p>
+          <span className="text-neutral-500 font-light">
+            ({minimumHours}h minimum)
+          </span>
         </div>
       </div>
       <hr />
@@ -64,17 +85,45 @@ function ListingInfo({
         />
       )}
       <hr />
-      <div className="flex flex-col">
-        <p className="text-4xl font-bold text-[#FF5A5F]">
-          air<span className="text-black">cover</span>
-        </p>
-        <p className="text-neutral-500 pt-3">
-          Every booking includes free protection from Host cancellations,
-          listing inaccuracies, and other issues like trouble checking in.
-        </p>
-        <p className="text-black font-bold underline pt-3 cursor-pointer">
-          Learn more
-        </p>
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          {instantBook && (
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚡</span>
+              <div>
+                <p className="font-semibold">Instant Book</p>
+                <p className="text-sm text-neutral-500">Book without approval</p>
+              </div>
+            </div>
+          )}
+          {sameDayBooking && (
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📅</span>
+              <div>
+                <p className="font-semibold">Same-Day Booking</p>
+                <p className="text-sm text-neutral-500">Available today</p>
+              </div>
+            </div>
+          )}
+          {wifiAvailable && (
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📶</span>
+              <div>
+                <p className="font-semibold">WiFi Available</p>
+                <p className="text-sm text-neutral-500">High-speed internet</p>
+              </div>
+            </div>
+          )}
+          {parking && (
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🅿️</span>
+              <div>
+                <p className="font-semibold">Parking</p>
+                <p className="text-sm text-neutral-500 capitalize">{parking}</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <hr />
       <p className="text-lg font-light text-neutral-500">{description}</p>

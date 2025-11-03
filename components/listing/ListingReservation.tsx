@@ -6,29 +6,38 @@ import Calendar from "../inputs/Calendar";
 import Button from "../Button";
 
 type Props = {
-  price: number;
+  hourlyRate: number;
+  minimumHours: number;
   dateRange: Range;
   totalPrice: number;
   onChangeDate: (value: Range) => void;
   onSubmit: () => void;
   disabled?: boolean;
   disabledDates: Date[];
+  selectedHours?: number;
 };
 
 function ListingReservation({
-  price,
+  hourlyRate,
+  minimumHours,
   dateRange,
   totalPrice,
   onChangeDate,
   onSubmit,
   disabled,
   disabledDates,
+  selectedHours = 2,
 }: Props) {
   return (
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
-      <div className="flex flex-row items-center gap-1 p-4">
-        <p className="flex gap-1 text-2xl font-semibold">
-          $ {price} <p className="font-light text-neutral-600">night</p>
+      <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-row items-center gap-1">
+          <p className="flex gap-1 text-2xl font-semibold">
+            $ {hourlyRate} <p className="font-light text-neutral-600">/hour</p>
+          </p>
+        </div>
+        <p className="text-sm text-neutral-500">
+          Minimum {minimumHours} hours required
         </p>
       </div>
       <hr />
@@ -38,7 +47,16 @@ function ListingReservation({
         onChange={(value) => onChangeDate(value.selection)}
       />
       <hr />
-      <div className="p-4">
+      <div className="p-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-semibold">Booking Summary</p>
+          <div className="flex justify-between text-sm">
+            <p className="text-neutral-500">
+              ${hourlyRate} × {selectedHours} hours
+            </p>
+            <p>${hourlyRate * selectedHours}</p>
+          </div>
+        </div>
         <Button disabled={disabled} label="Reserve" onClick={onSubmit} />
       </div>
       <hr />
