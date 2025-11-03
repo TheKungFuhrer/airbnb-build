@@ -3,6 +3,7 @@ import prisma from "@/lib/prismadb";
 export interface IListingsParams {
   userId?: string;
   capacity?: number;
+  guestCount?: number; // Guest count from search filters (maps to capacity)
   roomCount?: number;
   bathroomCount?: number;
   startTime?: string; // Changed from startDate to startTime
@@ -31,6 +32,7 @@ export default async function getListings(params: IListingsParams) {
       userId,
       roomCount,
       capacity,
+      guestCount,
       bathroomCount,
       locationValue,
       startTime,
@@ -67,10 +69,12 @@ export default async function getListings(params: IListingsParams) {
       };
     }
 
-    // Changed from guestCount to capacity
-    if (capacity) {
+    // Filter by capacity - use guestCount from search or capacity parameter
+    // The listing must have capacity >= selected guest count
+    const minCapacity = guestCount || capacity;
+    if (minCapacity) {
       query.capacity = {
-        gte: +capacity,
+        gte: +minCapacity,
       };
     }
 
