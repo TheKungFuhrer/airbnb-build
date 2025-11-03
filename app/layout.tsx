@@ -4,7 +4,9 @@ import ToastContainerBar from "@/components/ToastContainerBar";
 import LoginModal from "@/components/models/LoginModal";
 import RegisterModal from "@/components/models/RegisterModal";
 import RentModal from "@/components/models/RentModal";
-import SearchModal from "@/components/models/SearchModal";
+import CityModal from "@/components/models/CityModal";
+import DateModal from "@/components/models/DateModal";
+import GuestModal from "@/components/models/GuestModal";
 import Navbar from "@/components/navbar/Navbar";
 import { Nunito } from "next/font/google";
 import "../styles/globals.css";
@@ -32,7 +34,9 @@ export default async function RootLayout({
       <body className={font.className}>
         <ClientOnly>
           <ToastContainerBar />
-          <SearchModal />
+          <CityModal />
+          <DateModal />
+          <GuestModal />
           <RegisterModal />
           <LoginModal />
           <RentModal />
