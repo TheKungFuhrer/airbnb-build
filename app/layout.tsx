@@ -11,9 +11,9 @@ import "../styles/globals.css";
 import getCurrentUser from "./actions/getCurrentUser";
 
 export const metadata = {
-  title: "Airbnb Clone",
-  description: "Airbnb Clone",
-  icons: "https://www.seekpng.com/png/full/957-9571167_airbnb-png.png",
+  title: "OMG Rentals - Hourly Event Space Marketplace",
+  description: "Book unique event spaces by the hour for photoshoots, meetings, parties, and more",
+  icons: "/favicon.ico",
 };
 
 const font = Nunito({
