@@ -4,6 +4,8 @@ import useCountries from "@/hook/useCountries";
 import { SafeUser } from "@/types";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { IoArrowBack } from "react-icons/io5";
 import Heading from "../Heading";
 import HeartButton from "../HeartButton";
 
@@ -24,9 +26,19 @@ function ListingHead({
 }: Props) {
   const { getByValue } = useCountries();
   const location = getByValue(locationValue);
+  const router = useRouter();
 
   return (
     <>
+      {/* Back Button */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition mb-4"
+      >
+        <IoArrowBack size={20} />
+        <span className="font-semibold">Back</span>
+      </button>
+      
       <Heading
         title={title}
         subtitle={`${location?.region}, ${location?.label}`}
