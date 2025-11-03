@@ -20,10 +20,13 @@ function Avatar({ src, userName }: Props) {
           src={src}
         />
       ) : userName ? (
-        <img
-          className="rounded-full h-[30px] w-[30px]"
+        <Image
+          className="rounded-full"
+          height={30}
+          width={30}
           alt="nameImage"
           src={`https://ui-avatars.com/api/?name=${userName}`}
+          unoptimized
         />
       ) : (
         <Image
