@@ -64,31 +64,35 @@ function ListingClient({ reservations = [], listing, currentUser }: Props) {
     const endTime = new Date(dateRange.startDate?.getTime() || 0);
     endTime.setHours(endTime.getHours() + selectedHours);
 
+    // Create Stripe checkout session
     axios
-      .post("/api/reservations", {
-        totalPrice,
+      .post("/api/create-checkout-session", {
+        listingId: listing.id,
+        listingTitle: listing.title,
         startTime,
         endTime,
         durationHours: selectedHours,
         hourlyRate: listing.hourlyRate,
+        totalPrice,
         cleaningFee: listing.cleaningFee || 0,
-        serviceFee: 0,
+        serviceFee: Math.round((selectedHours * listing.hourlyRate) * 0.1),
         eventType: listing.category,
         guestCount: listing.capacity,
-        listingId: listing?.id,
       })
-      .then(() => {
-        toast.success("Success!");
-        setDateRange(initialDateRange);
-        router.push("/trips");
+      .then((response) => {
+        // Redirect to Stripe checkout
+        if (response.data.url) {
+          window.location.href = response.data.url;
+        } else {
+          throw new Error('No checkout URL returned');
+        }
       })
-      .catch(() => {
-        toast.error("Something Went Wrong");
-      })
-      .finally(() => {
+      .catch((error) => {
+        console.error('Checkout error:', error);
+        toast.error(error.response?.data?.error || "Failed to create checkout session");
         setIsLoading(false);
       });
-  }, [totalPrice, dateRange, listing?.id, router, currentUser, loginModal]);
+  }, [totalPrice, dateRange, listing, selectedHours, router, currentUser, loginModal]);
 
   useEffect(() => {
     if (selectedHours) {
