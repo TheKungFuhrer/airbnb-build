@@ -30,7 +30,7 @@ export default function BookingSuccess() {
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
           {isProcessing ? (
             <>
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-rose-500 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-brand-black mx-auto mb-4"></div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
                 Processing your booking...
               </h1>
@@ -48,7 +48,7 @@ export default function BookingSuccess() {
                 Your payment was successful and your booking has been confirmed.
               </p>
               <p className="text-gray-600 mb-8">
-                You'll receive a confirmation email shortly with all the details.
+                You&apos;ll receive a confirmation email shortly with all the details.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
