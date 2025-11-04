@@ -65,7 +65,7 @@ function GuestTierSelect({ value, onChange }: Props) {
               relative cursor-pointer rounded-lg border-2 p-4 transition-all
               ${
                 value === tier.value
-                  ? "border-rose-500 bg-rose-50"
+                  ? "border-brand-black bg-neutral-100"
                   : "border-neutral-200 hover:border-neutral-400"
               }
             `}
@@ -81,7 +81,7 @@ function GuestTierSelect({ value, onChange }: Props) {
             </div>
             {value === tier.value && (
               <div className="absolute top-4 right-4">
-                <div className="h-5 w-5 rounded-full bg-rose-500 flex items-center justify-center">
+                <div className="h-5 w-5 rounded-full bg-brand-black flex items-center justify-center">
                   <svg
                     className="h-3 w-3 text-white"
                     fill="none"

@@ -30,7 +30,7 @@ function CitySelect({ value, onChange }: Props) {
         onChange={(value) => onChange(value as CitySelectValue)}
         formatOptionLabel={(option: any) => (
           <div className="flex flex-row items-center gap-3">
-            <div className="text-rose-500">
+            <div className="text-brand-black">
               <HiLocationMarker size={20} />
             </div>
             <div>

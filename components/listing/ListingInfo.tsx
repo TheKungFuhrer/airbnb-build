@@ -73,7 +73,7 @@ function ListingInfo({
           {roomCount && roomCount > 0 && <p>{roomCount} rooms</p>}
           <p>{bathroomCount} bathrooms</p>
         </div>
-        <div className="flex flex-row items-center gap-4 font-semibold text-rose-500 mt-2">
+        <div className="flex flex-row items-center gap-4 font-semibold text-brand-black mt-2">
           <p>${hourlyRate}/hour</p>
           <span className="text-neutral-500 font-light">
             ({minimumHours}h minimum)
