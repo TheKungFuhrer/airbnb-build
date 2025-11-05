@@ -8,7 +8,7 @@ type Props = {
 
 function Container({ children }: Props) {
   return (
-    <div className="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
+    <div className="max-w-[3200px] mx-auto xl:px-16 lg:px-12 md:px-8 sm:px-4 px-3">
       {children}
     </div>
   );
