@@ -12,10 +12,10 @@ function Logo({}: Props) {
   return (
     <div 
       onClick={() => router.push("/")} 
-      className="cursor-pointer"
+      className="cursor-pointer flex items-center"
     >
-      {/* Desktop Logo */}
-      <div className="hidden md:block relative h-12 w-48">
+      {/* Desktop Logo - Large and prominent square logo */}
+      <div className="hidden md:block relative h-20 w-56">
         <Image
           src="/logos/logo-header.png"
           alt="OMG Rentals"
@@ -25,8 +25,8 @@ function Logo({}: Props) {
         />
       </div>
       
-      {/* Mobile Logo - Compact version */}
-      <div className="md:hidden relative h-10 w-24">
+      {/* Mobile Logo - Proportionally larger */}
+      <div className="md:hidden relative h-14 w-40">
         <Image
           src="/logos/logo-header.png"
           alt="OMG Rentals"
