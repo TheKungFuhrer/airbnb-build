@@ -1,7 +1,8 @@
 import ClientOnly from "@/components/ClientOnly";
 import Container from "@/components/Container";
 import EmptyState from "@/components/EmptyState";
-import ListingCard from "@/components/listing/ListingCard";
+import MasonryGrid from "@/components/MasonryGrid";
+import PostCard from "@/components/listing/PostCard";
 import getCurrentUser from "./actions/getCurrentUser";
 import getListings, { IListingsParams } from "./actions/getListings";
 
@@ -28,16 +29,29 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <ClientOnly>
       <Container>
-        <div className="pt-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-8 overflow-x-hidden">
-          {listing.map((list) => {
-            return (
-              <ListingCard
-                key={list.id}
-                data={list}
-                currentUser={currentUser}
-              />
-            );
-          })}
+        <div className="pt-24 pb-10 overflow-x-hidden">
+          <MasonryGrid
+            columns={{
+              default: 1,
+              sm: 2,
+              md: 2,
+              lg: 3,
+              xl: 3,
+              "2xl": 4,
+            }}
+            gap={4}
+          >
+            {listing.map((list, index) => {
+              return (
+                <PostCard
+                  key={list.id}
+                  data={list}
+                  currentUser={currentUser}
+                  index={index}
+                />
+              );
+            })}
+          </MasonryGrid>
         </div>
       </Container>
     </ClientOnly>
