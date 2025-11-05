@@ -38,7 +38,7 @@ export default async function Home({ searchParams }: HomeProps) {
               1024: 3,
               1280: 4,
               1536: 4,
-            }}
+            } as { default: number; [key: number]: number }}
             gap={4}
           >
             {listing.map((list, index) => {

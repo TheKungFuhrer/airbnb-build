@@ -5,14 +5,7 @@ import Masonry from "react-masonry-css";
 
 interface MasonryGridProps {
   children: ReactNode;
-  columns?: {
-    default: number;
-    640?: number;  // sm
-    768?: number;  // md
-    1024?: number; // lg
-    1280?: number; // xl
-    1536?: number; // 2xl
-  };
+  columns?: number | { default: number; [key: number]: number };
   gap?: number;
 }
 
@@ -35,7 +28,7 @@ const MasonryGrid: React.FC<MasonryGridProps> = ({
     <Masonry
       breakpointCols={columns}
       className="flex w-full"
-      columnClassName={`masonry-grid-column`}
+      columnClassName="masonry-grid-column"
       style={{
         marginLeft: `-${gapPx}px`,
       }}
