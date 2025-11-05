@@ -14,10 +14,10 @@ function Logo({}: Props) {
       onClick={() => router.push("/")} 
       className="cursor-pointer"
     >
-      {/* Desktop Logo - Black version for light background */}
-      <div className="hidden md:block relative h-12 w-40">
+      {/* Desktop Logo */}
+      <div className="hidden md:block relative h-12 w-48">
         <Image
-          src="/logos/logo-light.png"
+          src="/logos/logo-header.png"
           alt="OMG Rentals"
           fill
           className="object-contain object-left"
@@ -26,9 +26,9 @@ function Logo({}: Props) {
       </div>
       
       {/* Mobile Logo - Compact version */}
-      <div className="md:hidden relative h-10 w-20">
+      <div className="md:hidden relative h-10 w-24">
         <Image
-          src="/logos/logo-light.png"
+          src="/logos/logo-header.png"
           alt="OMG Rentals"
           fill
           className="object-contain object-left"

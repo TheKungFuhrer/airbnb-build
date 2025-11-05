@@ -72,7 +72,7 @@ function UserMenu({ currentUser }: Props) {
               <>
                 <MenuItem
                   onClick={() => router.push("/trips")}
-                  label="My trips"
+                  label="My Bookings"
                 />
                 <MenuItem
                   onClick={() => router.push("/favorites")}
@@ -80,7 +80,7 @@ function UserMenu({ currentUser }: Props) {
                 />
                 <MenuItem
                   onClick={() => router.push("/reservations")}
-                  label="My reservations"
+                  label="Upcoming Events"
                 />
                 <MenuItem
                   onClick={() => router.push("/properties")}
