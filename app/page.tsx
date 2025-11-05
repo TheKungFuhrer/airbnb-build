@@ -29,7 +29,7 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <ClientOnly>
       <Container>
-        <div className="pt-24 pb-10 px-2 sm:px-0">
+        <div className="pt-32 pb-10 px-2 sm:px-0">
           <MasonryGrid
             columns={{
               default: 2,
