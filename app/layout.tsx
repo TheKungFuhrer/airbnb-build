@@ -15,11 +15,26 @@ import getCurrentUser from "./actions/getCurrentUser";
 export const metadata = {
   title: "OMG Rentals - Hourly Event Space Marketplace",
   description: "Book unique event spaces by the hour for photoshoots, meetings, parties, and more",
-  icons: "/favicon.ico",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
 };
 
 const font = Nunito({
   subsets: ["latin"],
+  variable: "--font-nunito",
+  display: "swap",
 });
 
 export default async function RootLayout({
@@ -31,7 +46,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body className={`${font.variable} font-sans`}>
         <ClientOnly>
           <ToastContainerBar />
           <CityModal />

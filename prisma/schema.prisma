@@ -124,6 +124,10 @@ model Reservation {
   status          String   @default("pending") // pending, confirmed, completed, cancelled
   instantBooked   Boolean  @default(false)
   
+  // Stripe Payment Info
+  stripeSessionId       String?  @unique
+  stripePaymentIntentId String?
+  
   // Timestamps
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

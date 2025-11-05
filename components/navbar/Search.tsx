@@ -88,7 +88,7 @@ function Search({}: Props) {
           >
             {guessLabel}
           </div>
-          <div className="p-2 bg-rose-500 rounded-full text-white">
+          <div className="p-2 bg-brand-black rounded-full text-white">
             <BiSearch size={18} />
           </div>
         </div>
