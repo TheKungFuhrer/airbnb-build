@@ -29,15 +29,15 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <ClientOnly>
       <Container>
-        <div className="pt-24 pb-10 overflow-x-hidden">
+        <div className="pt-24 pb-10">
           <MasonryGrid
             columns={{
-              default: 1,
-              sm: 2,
-              md: 2,
-              lg: 3,
-              xl: 3,
-              "2xl": 4,
+              default: 2,
+              640: 2,
+              768: 3,
+              1024: 3,
+              1280: 4,
+              1536: 4,
             }}
             gap={4}
           >
