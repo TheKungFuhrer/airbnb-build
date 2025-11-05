@@ -14,8 +14,8 @@ function Logo({}: Props) {
       onClick={() => router.push("/")} 
       className="cursor-pointer flex items-center"
     >
-      {/* Desktop Logo - Large and prominent square logo */}
-      <div className="hidden md:block relative h-20 w-56">
+      {/* Desktop Logo - Maximum size for full brand visibility */}
+      <div className="hidden md:block relative h-24 w-64">
         <Image
           src="/logos/logo-header.png"
           alt="OMG Rentals"
@@ -25,8 +25,8 @@ function Logo({}: Props) {
         />
       </div>
       
-      {/* Mobile Logo - Proportionally larger */}
-      <div className="md:hidden relative h-14 w-40">
+      {/* Mobile Logo - Large enough to read "RENTALS" */}
+      <div className="md:hidden relative h-16 w-44">
         <Image
           src="/logos/logo-header.png"
           alt="OMG Rentals"
