@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import useVerifyPhoneModal from "@/hook/useVerifyPhoneModal";
 
 type Props = {
   currentUser: SafeUser | null;
@@ -17,7 +18,9 @@ type Props = {
 
 function ProfileClient({ currentUser }: Props) {
   const router = useRouter();
+  const verifyPhoneModal = useVerifyPhoneModal();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingVerification, setIsSendingVerification] = useState(false);
   const [profileImage, setProfileImage] = useState(currentUser?.image || "");
 
   const {
@@ -28,11 +31,11 @@ function ProfileClient({ currentUser }: Props) {
   } = useForm<FieldValues>({
     defaultValues: {
       firstName: currentUser?.name?.split(" ")[0] || "",
-      lastName: currentUser?.name?.split(" ")[1] || "",
+      lastName: currentUser?.name?.split(" ").slice(1).join(" ") || "",
       email: currentUser?.email || "",
-      phoneNumber: "",
-      companyName: "",
-      jobTitle: "",
+      phoneNumber: currentUser?.phoneNumber || "",
+      companyName: currentUser?.businessName || "",
+      jobTitle: currentUser?.jobTitle || "",
     },
   });
 
@@ -43,6 +46,28 @@ function ProfileClient({ currentUser }: Props) {
     },
     [setValue]
   );
+
+  const handleVerifyPhone = useCallback(() => {
+    if (!currentUser?.phoneNumber) {
+      toast.error("Please add a phone number first");
+      return;
+    }
+
+    setIsSendingVerification(true);
+    axios
+      .post("/api/verify/phone/send")
+      .then(() => {
+        toast.success("Verification code sent to your phone!");
+        verifyPhoneModal.onOpen();
+      })
+      .catch((err: any) => {
+        console.error(err);
+        toast.error(err.response?.data?.error || "Failed to send verification code");
+      })
+      .finally(() => {
+        setIsSendingVerification(false);
+      });
+  }, [currentUser?.phoneNumber, verifyPhoneModal]);
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
@@ -183,22 +208,47 @@ function ProfileClient({ currentUser }: Props) {
               <label className="block text-sm font-medium mb-2">
                 Phone number
               </label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  <span className="text-gray-500">🇺🇸</span>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <span className="text-gray-500">🇺🇸</span>
+                  </div>
+                  <input
+                    {...register("phoneNumber")}
+                    type="tel"
+                    disabled={isLoading}
+                    placeholder="Add phone number"
+                    className="w-full pl-14 pr-4 py-3 border-2 rounded-md outline-none transition border-neutral-300 focus:border-black"
+                  />
                 </div>
-                <input
-                  {...register("phoneNumber")}
-                  type="tel"
-                  disabled={isLoading}
-                  placeholder="Add phone number"
-                  className="w-full pl-14 pr-4 py-3 border-2 rounded-md outline-none transition border-neutral-300 focus:border-black"
-                />
+                {currentUser?.phoneNumber && !currentUser?.phoneVerified && (
+                  <button
+                    type="button"
+                    onClick={handleVerifyPhone}
+                    disabled={isSendingVerification || isLoading}
+                    className="px-4 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {isSendingVerification ? "Sending..." : "Verify Phone"}
+                  </button>
+                )}
+                {currentUser?.phoneVerified && (
+                  <div className="flex items-center px-4 py-3 bg-green-50 border-2 border-green-500 rounded-md">
+                    <span className="text-green-600 font-medium">✓ Verified</span>
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-yellow-800 bg-yellow-50 border border-yellow-200 rounded p-3 mt-2 flex items-start gap-2">
-                <span className="text-lg">ℹ️</span>
-                <span>Add your number and never miss an update</span>
-              </p>
+              {currentUser?.phoneNumber && !currentUser?.phoneVerified && (
+                <p className="text-xs text-yellow-800 bg-yellow-50 border border-yellow-200 rounded p-3 mt-2 flex items-start gap-2">
+                  <span className="text-lg">⚠️</span>
+                  <span>Please verify your phone number to receive booking updates</span>
+                </p>
+              )}
+              {!currentUser?.phoneNumber && (
+                <p className="text-xs text-yellow-800 bg-yellow-50 border border-yellow-200 rounded p-3 mt-2 flex items-start gap-2">
+                  <span className="text-lg">ℹ️</span>
+                  <span>Add your number and never miss an update</span>
+                </p>
+              )}
             </div>
 
             <div className="mb-4">

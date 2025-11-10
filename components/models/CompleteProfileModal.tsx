@@ -33,7 +33,6 @@ function CompleteProfileModal({}: Props) {
       lastName: "",
       companyName: "",
       jobTitle: "",
-      phoneNumber: "",
       howDidYouHear: "",
       image: "",
     },
@@ -214,29 +213,6 @@ function CompleteProfileModal({}: Props) {
           register={register}
           errors={errors}
         />
-      </div>
-
-      {/* Phone Number */}
-      <div>
-        <div className="w-full relative">
-          <div className="absolute left-4 top-5 flex items-center gap-2">
-            <span className="text-gray-500">🇺🇸</span>
-          </div>
-          <input
-            id="phoneNumber"
-            type="tel"
-            disabled={isLoading}
-            {...register("phoneNumber")}
-            placeholder=" "
-            className="peer w-full p-4 pt-6 pl-14 font-light bg-white border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed border-neutral-300 focus:border-black"
-          />
-          <label className="absolute text-md duration-150 transform -translate-y-3 top-5 z-10 origin-[0] left-14 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 text-zinc-400">
-            Phone number
-          </label>
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
-          We will only use your phone number for booking updates.
-        </p>
       </div>
 
       {/* How did you hear about us */}

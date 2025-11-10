@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import {
-  sendVerificationEmail,
-  sendVerificationSMS,
-} from "@/lib/verification";
+import { sendVerificationEmail } from "@/lib/verification";
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +20,6 @@ export async function POST(request: Request) {
       lastName,
       companyName,
       jobTitle,
-      phoneNumber,
       howDidYouHear,
       image,
     } = body;
@@ -50,8 +46,8 @@ export async function POST(request: Request) {
       data: {
         name: `${firstName} ${lastName}`,
         image,
-        phoneNumber: phoneNumber || null,
         businessName: companyName || null,
+        jobTitle: jobTitle || null,
       },
     });
 
@@ -64,22 +60,7 @@ export async function POST(request: Request) {
       // Don't block profile completion, but log the error
     }
 
-    // If phone number provided, send SMS verification via Twilio Verify
-    let hasPhoneNumber = false;
-    if (phoneNumber) {
-      hasPhoneNumber = true;
-      const smsSent = await sendVerificationSMS(phoneNumber);
-      
-      if (!smsSent) {
-        console.error("Failed to send SMS verification");
-        // Don't block profile completion, but log the error
-      }
-    }
-
-    return NextResponse.json({
-      ...updatedUser,
-      hasPhoneNumber,
-    });
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error completing profile:", error);
     return NextResponse.json(

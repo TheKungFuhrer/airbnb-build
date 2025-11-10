@@ -24,6 +24,7 @@ model User {
   phoneNumber    String?
   phoneVerified  DateTime?
   businessName   String?       // For event planners/photographers
+  jobTitle       String?       // User's job title
   accounts       Account[]
   listings       Listing[]
   reservations   Reservation[]

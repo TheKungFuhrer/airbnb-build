@@ -24,7 +24,9 @@ export async function PUT(request: Request) {
       data: {
         name,
         image,
-        // Note: Additional fields would require database schema updates
+        phoneNumber: phoneNumber || null,
+        businessName: companyName || null,
+        jobTitle: jobTitle || null,
       },
     });
 
