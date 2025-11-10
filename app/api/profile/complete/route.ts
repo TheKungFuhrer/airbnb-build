@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import {
-  generateVerificationCode,
-  storeVerificationCode,
   sendVerificationEmail,
   sendVerificationSMS,
 } from "@/lib/verification";
@@ -57,28 +55,25 @@ export async function POST(request: Request) {
       },
     });
 
-    // Generate and send email verification code
-    const emailVerificationCode = generateVerificationCode();
-    await storeVerificationCode(
-      currentUser.email!,
-      emailVerificationCode,
-      "email",
-      currentUser.id
-    );
-    await sendVerificationEmail(currentUser.email!, emailVerificationCode);
+    // Send email verification via Twilio Verify
+    // Twilio generates and manages the code
+    const emailSent = await sendVerificationEmail(currentUser.email!);
+    
+    if (!emailSent) {
+      console.error("Failed to send email verification");
+      // Don't block profile completion, but log the error
+    }
 
-    // If phone number provided, generate and send SMS verification code
+    // If phone number provided, send SMS verification via Twilio Verify
     let hasPhoneNumber = false;
     if (phoneNumber) {
       hasPhoneNumber = true;
-      const phoneVerificationCode = generateVerificationCode();
-      await storeVerificationCode(
-        phoneNumber,
-        phoneVerificationCode,
-        "phone",
-        currentUser.id
-      );
-      await sendVerificationSMS(phoneNumber, phoneVerificationCode);
+      const smsSent = await sendVerificationSMS(phoneNumber);
+      
+      if (!smsSent) {
+        console.error("Failed to send SMS verification");
+        // Don't block profile completion, but log the error
+      }
     }
 
     return NextResponse.json({

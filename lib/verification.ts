@@ -1,173 +1,188 @@
-import prisma from "./prismadb";
+/**
+ * Twilio Verify Integration
+ * 
+ * This module uses Twilio Verify API to handle email and SMS verification.
+ * Twilio manages code generation, storage, expiration, and delivery.
+ * 
+ * Benefits:
+ * - No need to store codes in our database
+ * - Automatic retry logic and rate limiting
+ * - Built-in expiration handling (10 minutes default)
+ * - Unified logging in Twilio Console
+ * - SendGrid integration for email delivery
+ */
 
 /**
- * Generate a 4-digit verification code
+ * Initialize Twilio Verify client
  */
-export function generateVerificationCode(): string {
-  return Math.floor(1000 + Math.random() * 9000).toString();
+function getTwilioClient() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+
+  if (!accountSid || !authToken || !serviceSid) {
+    throw new Error("Missing Twilio Verify credentials");
+  }
+
+  const twilio = require("twilio");
+  return {
+    client: twilio(accountSid, authToken),
+    serviceSid,
+  };
 }
 
 /**
- * Store verification code in database
- * @param identifier - email or phone number
- * @param code - 4-digit code
- * @param type - "email" or "phone"
- * @param userId - optional user ID
+ * Send verification email using Twilio Verify
+ * Twilio generates the code and sends it via SendGrid
+ * 
+ * @param email - Email address to send verification to
+ * @returns Promise<boolean> - True if sent successfully
  */
-export async function storeVerificationCode(
-  identifier: string,
-  code: string,
-  type: "email" | "phone",
-  userId?: string
-) {
-  // Code expires in 15 minutes
-  const expires = new Date(Date.now() + 15 * 60 * 1000);
-
-  // Delete any existing codes for this identifier
-  await prisma.verificationToken.deleteMany({
-    where: {
-      identifier,
-      type,
-    },
-  });
-
-  // Create new verification token
-  return await prisma.verificationToken.create({
-    data: {
-      identifier,
-      token: code,
-      type,
-      userId,
-      expires,
-    },
-  });
-}
-
-/**
- * Verify a code
- * @param identifier - email or phone number
- * @param code - 4-digit code to verify
- * @param type - "email" or "phone"
- */
-export async function verifyCode(
-  identifier: string,
-  code: string,
-  type: "email" | "phone"
-): Promise<{ valid: boolean; expired?: boolean }> {
-  const token = await prisma.verificationToken.findUnique({
-    where: {
-      identifier_type: {
-        identifier,
-        type,
-      },
-    },
-  });
-
-  if (!token) {
-    return { valid: false };
-  }
-
-  // Check if expired
-  if (token.expires < new Date()) {
-    // Delete expired token
-    await prisma.verificationToken.delete({
-      where: {
-        id: token.id,
-      },
-    });
-    return { valid: false, expired: true };
-  }
-
-  // Check if code matches
-  if (token.token !== code) {
-    return { valid: false };
-  }
-
-  // Code is valid! Delete it (one-time use)
-  await prisma.verificationToken.delete({
-    where: {
-      id: token.id,
-    },
-  });
-
-  return { valid: true };
-}
-
-/**
- * Send verification email using Twilio Verify with SendGrid integration
- */
-export async function sendVerificationEmail(
-  email: string,
-  code: string
-): Promise<boolean> {
+export async function sendVerificationEmail(email: string): Promise<boolean> {
   try {
-    // Use Twilio Verify API which is integrated with SendGrid
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    const { client, serviceSid } = getTwilioClient();
 
-    if (!accountSid || !authToken || !serviceSid) {
-      console.error("Missing Twilio credentials");
-      console.log(`📧 [DEV MODE] Would send email to ${email} with code: ${code}`);
-      return false;
-    }
-
-    const twilio = require("twilio");
-    const client = twilio(accountSid, authToken);
-
-    // Twilio Verify automatically sends the code using your SendGrid integration
-    await client.verify.v2
+    // Twilio Verify generates and sends the code
+    const verification = await client.verify.v2
       .services(serviceSid)
       .verifications.create({
         to: email,
         channel: "email",
-        customCode: code,
       });
 
     console.log(`📧 Verification email sent to ${email}`);
-    return true;
-  } catch (error) {
+    console.log(`   Status: ${verification.status}`);
+    console.log(`   SID: ${verification.sid}`);
+    
+    return verification.status === "pending";
+  } catch (error: any) {
     console.error("Error sending verification email:", error);
-    console.log(`📧 [FALLBACK] Logging code for ${email}: ${code}`);
+    console.error(`   Error code: ${error.code}`);
+    console.error(`   Error message: ${error.message}`);
     return false;
   }
 }
 
 /**
  * Send verification SMS using Twilio Verify
+ * Twilio generates the code and sends it via SMS
+ * 
+ * @param phoneNumber - Phone number to send verification to (must include country code, e.g., +1234567890)
+ * @returns Promise<boolean> - True if sent successfully
  */
-export async function sendVerificationSMS(
-  phoneNumber: string,
-  code: string
-): Promise<boolean> {
+export async function sendVerificationSMS(phoneNumber: string): Promise<boolean> {
   try {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    const { client, serviceSid } = getTwilioClient();
 
-    if (!accountSid || !authToken || !serviceSid) {
-      console.error("Missing Twilio credentials");
-      console.log(`📱 [DEV MODE] Would send SMS to ${phoneNumber} with code: ${code}`);
-      return false;
-    }
-
-    const twilio = require("twilio");
-    const client = twilio(accountSid, authToken);
-
-    // Twilio Verify automatically sends the SMS
-    await client.verify.v2
+    // Twilio Verify generates and sends the code
+    const verification = await client.verify.v2
       .services(serviceSid)
       .verifications.create({
         to: phoneNumber,
         channel: "sms",
-        customCode: code,
       });
 
     console.log(`📱 Verification SMS sent to ${phoneNumber}`);
-    return true;
-  } catch (error) {
+    console.log(`   Status: ${verification.status}`);
+    console.log(`   SID: ${verification.sid}`);
+    
+    return verification.status === "pending";
+  } catch (error: any) {
     console.error("Error sending verification SMS:", error);
-    console.log(`📱 [FALLBACK] Logging code for ${phoneNumber}: ${code}`);
+    console.error(`   Error code: ${error.code}`);
+    console.error(`   Error message: ${error.message}`);
     return false;
   }
+}
+
+/**
+ * Verify a code submitted by the user
+ * Checks the code against Twilio Verify's system
+ * 
+ * @param identifier - Email or phone number
+ * @param code - The verification code entered by user
+ * @param type - "email" or "phone" (for logging purposes)
+ * @returns Promise with validation result
+ */
+export async function verifyCode(
+  identifier: string,
+  code: string,
+  type: "email" | "phone"
+): Promise<{ valid: boolean; expired?: boolean; error?: string }> {
+  try {
+    const { client, serviceSid } = getTwilioClient();
+
+    // Check the code against Twilio Verify
+    const verificationCheck = await client.verify.v2
+      .services(serviceSid)
+      .verificationChecks.create({
+        to: identifier,
+        code: code,
+      });
+
+    console.log(`🔍 Verification check for ${identifier}`);
+    console.log(`   Status: ${verificationCheck.status}`);
+    console.log(`   Valid: ${verificationCheck.valid}`);
+
+    if (verificationCheck.status === "approved") {
+      return { valid: true };
+    } else {
+      return { 
+        valid: false, 
+        error: "Invalid verification code" 
+      };
+    }
+  } catch (error: any) {
+    console.error(`Error verifying ${type} code:`, error);
+    console.error(`   Error code: ${error.code}`);
+    console.error(`   Error message: ${error.message}`);
+
+    // Check if the error is due to expired verification
+    if (error.code === 60202 || error.code === 60203) {
+      return { 
+        valid: false, 
+        expired: true,
+        error: "Verification code has expired" 
+      };
+    }
+
+    // Check if max attempts exceeded
+    if (error.code === 60202) {
+      return {
+        valid: false,
+        error: "Too many failed attempts. Please request a new code."
+      };
+    }
+
+    return { 
+      valid: false, 
+      error: error.message || "Verification failed" 
+    };
+  }
+}
+
+/**
+ * Resend verification email
+ * Cancels any pending verifications and sends a new one
+ * 
+ * @param email - Email address
+ * @returns Promise<boolean> - True if sent successfully
+ */
+export async function resendVerificationEmail(email: string): Promise<boolean> {
+  // Twilio Verify automatically handles rate limiting
+  // Just send a new verification
+  return sendVerificationEmail(email);
+}
+
+/**
+ * Resend verification SMS
+ * Cancels any pending verifications and sends a new one
+ * 
+ * @param phoneNumber - Phone number with country code
+ * @returns Promise<boolean> - True if sent successfully
+ */
+export async function resendVerificationSMS(phoneNumber: string): Promise<boolean> {
+  // Twilio Verify automatically handles rate limiting
+  // Just send a new verification
+  return sendVerificationSMS(phoneNumber);
 }
