@@ -7,6 +7,9 @@ import RentModal from "@/components/models/RentModal";
 import CityModal from "@/components/models/CityModal";
 import DateModal from "@/components/models/DateModal";
 import GuestModal from "@/components/models/GuestModal";
+import CompleteProfileModal from "@/components/models/CompleteProfileModal";
+import VerifyEmailModal from "@/components/models/VerifyEmailModal";
+import VerifyPhoneModal from "@/components/models/VerifyPhoneModal";
 import Navbar from "@/components/navbar/Navbar";
 import { Nunito } from "next/font/google";
 import "../styles/globals.css";
@@ -55,6 +58,9 @@ export default async function RootLayout({
           <RegisterModal />
           <LoginModal />
           <RentModal />
+          <CompleteProfileModal />
+          <VerifyEmailModal />
+          <VerifyPhoneModal />
           <Navbar currentUser={currentUser} />
         </ClientOnly>
         <div className="pb-20 pt-28">{children}</div>
