@@ -71,6 +71,10 @@ function UserMenu({ currentUser }: Props) {
             {currentUser ? (
               <>
                 <MenuItem
+                  onClick={() => router.push("/profile")}
+                  label="Profile"
+                />
+                <MenuItem
                   onClick={() => router.push("/trips")}
                   label="My Bookings"
                 />
