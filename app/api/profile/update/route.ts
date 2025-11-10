@@ -26,6 +26,7 @@ export async function PUT(request: Request) {
         image,
         phoneNumber: phoneNumber || null,
         businessName: companyName || null,
+        jobTitle: jobTitle || null,
       },
     });
 

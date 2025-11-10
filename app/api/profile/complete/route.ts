@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         name: `${firstName} ${lastName}`,
         image,
         businessName: companyName || null,
+        jobTitle: jobTitle || null,
       },
     });
 
