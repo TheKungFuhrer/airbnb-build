@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import {
+  generateVerificationCode,
+  storeVerificationCode,
+  sendVerificationEmail,
+  sendVerificationSMS,
+} from "@/lib/verification";
 
 export async function POST(request: Request) {
   try {
@@ -46,27 +52,38 @@ export async function POST(request: Request) {
       data: {
         name: `${firstName} ${lastName}`,
         image,
-        // Store additional fields in a JSON field or create separate fields
-        // For now, we'll just update the basic fields
+        phoneNumber: phoneNumber || null,
+        businessName: companyName || null,
       },
     });
 
-    // Generate verification code for email
-    const emailVerificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-    
-    // TODO: Store verification code in database
-    // TODO: Send verification email with code
+    // Generate and send email verification code
+    const emailVerificationCode = generateVerificationCode();
+    await storeVerificationCode(
+      currentUser.email!,
+      emailVerificationCode,
+      "email",
+      currentUser.id
+    );
+    await sendVerificationEmail(currentUser.email!, emailVerificationCode);
 
-    // If phone number provided, generate verification code for phone
+    // If phone number provided, generate and send SMS verification code
+    let hasPhoneNumber = false;
     if (phoneNumber) {
-      const phoneVerificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-      // TODO: Store verification code in database
-      // TODO: Send SMS with code
+      hasPhoneNumber = true;
+      const phoneVerificationCode = generateVerificationCode();
+      await storeVerificationCode(
+        phoneNumber,
+        phoneVerificationCode,
+        "phone",
+        currentUser.id
+      );
+      await sendVerificationSMS(phoneNumber, phoneVerificationCode);
     }
 
     return NextResponse.json({
       ...updatedUser,
-      hasPhoneNumber: !!phoneNumber,
+      hasPhoneNumber,
     });
   } catch (error) {
     console.error("Error completing profile:", error);
