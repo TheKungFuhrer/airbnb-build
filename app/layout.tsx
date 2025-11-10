@@ -10,6 +10,7 @@ import GuestModal from "@/components/models/GuestModal";
 import CompleteProfileModal from "@/components/models/CompleteProfileModal";
 import VerifyEmailModal from "@/components/models/VerifyEmailModal";
 import VerifyPhoneModal from "@/components/models/VerifyPhoneModal";
+import PhoneInputModal from "@/components/models/PhoneInputModal";
 import Navbar from "@/components/navbar/Navbar";
 import { Nunito } from "next/font/google";
 import "../styles/globals.css";
@@ -61,6 +62,7 @@ export default async function RootLayout({
           <CompleteProfileModal />
           <VerifyEmailModal />
           <VerifyPhoneModal />
+          <PhoneInputModal />
           <Navbar currentUser={currentUser} />
         </ClientOnly>
         <div className="pb-20 pt-28">{children}</div>

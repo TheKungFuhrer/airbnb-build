@@ -11,6 +11,8 @@ import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useVerifyPhoneModal from "@/hook/useVerifyPhoneModal";
+import usePhoneInputModal from "@/hook/usePhoneInputModal";
+import PhoneInputModal from "@/components/models/PhoneInputModal";
 
 type Props = {
   currentUser: SafeUser | null;
@@ -19,8 +21,8 @@ type Props = {
 function ProfileClient({ currentUser }: Props) {
   const router = useRouter();
   const verifyPhoneModal = useVerifyPhoneModal();
+  const phoneInputModal = usePhoneInputModal();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSendingVerification, setIsSendingVerification] = useState(false);
   const [profileImage, setProfileImage] = useState(currentUser?.image || "");
 
   const {
@@ -47,27 +49,34 @@ function ProfileClient({ currentUser }: Props) {
     [setValue]
   );
 
-  const handleVerifyPhone = useCallback(() => {
-    if (!currentUser?.phoneNumber) {
-      toast.error("Please add a phone number first");
-      return;
-    }
+  const handlePhoneClick = useCallback(() => {
+    // Open phone input modal
+    phoneInputModal.onOpen();
+  }, [phoneInputModal]);
 
-    setIsSendingVerification(true);
+  const handleChangeNumber = useCallback(() => {
+    // Clear phone verification and open input modal
+    setIsLoading(true);
     axios
-      .post("/api/verify/phone/send")
+      .put("/api/profile/update", { phoneNumber: null })
       .then(() => {
-        toast.success("Verification code sent to your phone!");
-        verifyPhoneModal.onOpen();
+        toast.success("Phone number removed. Please add a new number.");
+        router.refresh();
+        phoneInputModal.onOpen();
       })
       .catch((err: any) => {
         console.error(err);
-        toast.error(err.response?.data?.error || "Failed to send verification code");
+        toast.error("Failed to remove phone number");
       })
       .finally(() => {
-        setIsSendingVerification(false);
+        setIsLoading(false);
       });
-  }, [currentUser?.phoneNumber, verifyPhoneModal]);
+  }, [phoneInputModal, router]);
+
+  const handlePhoneUpdated = useCallback(() => {
+    // Refresh page to show new phone number
+    router.refresh();
+  }, [router]);
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
@@ -210,27 +219,15 @@ function ProfileClient({ currentUser }: Props) {
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <span className="text-gray-500">🇺🇸</span>
-                  </div>
                   <input
-                    {...register("phoneNumber")}
-                    type="tel"
-                    disabled={isLoading}
+                    type="text"
+                    readOnly
+                    onClick={handlePhoneClick}
+                    value={currentUser?.phoneNumber || ""}
                     placeholder="Add phone number"
-                    className="w-full pl-14 pr-4 py-3 border-2 rounded-md outline-none transition border-neutral-300 focus:border-black"
+                    className="w-full px-4 py-3 border-2 rounded-md outline-none transition border-neutral-300 focus:border-black cursor-pointer hover:bg-gray-50"
                   />
                 </div>
-                {currentUser?.phoneNumber && !currentUser?.phoneVerified && (
-                  <button
-                    type="button"
-                    onClick={handleVerifyPhone}
-                    disabled={isSendingVerification || isLoading}
-                    className="px-4 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap"
-                  >
-                    {isSendingVerification ? "Sending..." : "Verify Phone"}
-                  </button>
-                )}
                 {currentUser?.phoneVerified && (
                   <div className="flex items-center px-4 py-3 bg-green-50 border-2 border-green-500 rounded-md">
                     <span className="text-green-600 font-medium">✓ Verified</span>
@@ -240,13 +237,25 @@ function ProfileClient({ currentUser }: Props) {
               {currentUser?.phoneNumber && !currentUser?.phoneVerified && (
                 <p className="text-xs text-yellow-800 bg-yellow-50 border border-yellow-200 rounded p-3 mt-2 flex items-start gap-2">
                   <span className="text-lg">⚠️</span>
-                  <span>Please verify your phone number to receive booking updates</span>
+                  <span>Verification in progress. Check your text messages for the code.</span>
                 </p>
+              )}
+              {currentUser?.phoneVerified && (
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={handleChangeNumber}
+                    disabled={isLoading}
+                    className="text-sm text-purple-600 hover:underline font-medium disabled:opacity-70"
+                  >
+                    Change number
+                  </button>
+                </div>
               )}
               {!currentUser?.phoneNumber && (
                 <p className="text-xs text-yellow-800 bg-yellow-50 border border-yellow-200 rounded p-3 mt-2 flex items-start gap-2">
                   <span className="text-lg">ℹ️</span>
-                  <span>Add your number and never miss an update</span>
+                  <span>Click to add your number and never miss an update</span>
                 </p>
               )}
             </div>
@@ -322,6 +331,7 @@ function ProfileClient({ currentUser }: Props) {
           </div>
         </form>
       </div>
+      <PhoneInputModal onPhoneUpdated={handlePhoneUpdated} />
     </Container>
   );
 }
