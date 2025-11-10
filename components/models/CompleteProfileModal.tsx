@@ -120,7 +120,7 @@ function CompleteProfileModal({}: Props) {
         </div>
         <CldUploadWidget
           onUpload={handleUpload}
-          uploadPreset="cptcecyi"
+          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cptcecyi"}
           options={{
             maxFiles: 1,
           }}

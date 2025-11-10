@@ -23,11 +23,13 @@ function RegisterModal({}: Props) {
   const loginModel = useLoginModel();
   const completeProfileModal = useCompleteProfileModal();
   const [isLoading, setIsLoading] = useState(false);
+  const [registerError, setRegisterError] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm<FieldValues>({
     defaultValues: {
       email: "",
@@ -38,6 +40,7 @@ function RegisterModal({}: Props) {
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
+    setRegisterError(""); // Clear previous errors
 
     axios
       .post("/api/register", data)
@@ -45,8 +48,32 @@ function RegisterModal({}: Props) {
         toast.success("Account created successfully!");
         registerModel.onClose();
         completeProfileModal.onOpen();
+        setRegisterError("");
       })
-      .catch((err: any) => toast.error("Something Went Wrong"))
+      .catch((err: any) => {
+        // Check if user already exists
+        if (err.response?.status === 409) {
+          // User exists, try to login instead
+          const { email, password } = getValues();
+          
+          signIn("credentials", {
+            email,
+            password,
+            redirect: false,
+          }).then((callback) => {
+            if (callback?.ok) {
+              toast.success("Logged in successfully!");
+              registerModel.onClose();
+              setRegisterError("");
+            } else {
+              // Wrong password for existing account
+              setRegisterError("Email and password combination is incorrect.");
+            }
+          });
+        } else {
+          setRegisterError("Email and password combination is incorrect.");
+        }
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -115,6 +142,13 @@ function RegisterModal({}: Props) {
           </p>
         )}
       </div>
+
+      {/* Registration Error Message */}
+      {registerError && (
+        <p className="text-red-500 text-sm text-center -mt-2">
+          {registerError}
+        </p>
+      )}
       
       {/* Legal Agreement Text */}
       <div className="text-xs text-neutral-500 text-center mt-2">
