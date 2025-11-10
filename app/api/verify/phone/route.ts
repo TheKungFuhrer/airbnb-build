@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify the code using our utility function
+    // Verify the code using Twilio Verify
     const result = await verifyCode(currentUser.phoneNumber, code, "phone");
 
     if (!result.valid) {
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         );
       }
       return NextResponse.json(
-        { error: "Invalid verification code. Please try again." },
+        { error: result.error || "Invalid verification code. Please try again." },
         { status: 400 }
       );
     }

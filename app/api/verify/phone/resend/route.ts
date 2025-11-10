@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import {
-  generateVerificationCode,
-  storeVerificationCode,
-  sendVerificationSMS,
-} from "@/lib/verification";
+import { resendVerificationSMS } from "@/lib/verification";
 
 export async function POST(request: Request) {
   try {
@@ -24,19 +20,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate new verification code
-    const phoneVerificationCode = generateVerificationCode();
-    
-    // Store verification code in database
-    await storeVerificationCode(
-      currentUser.phoneNumber,
-      phoneVerificationCode,
-      "phone",
-      currentUser.id
-    );
+    // Resend verification via Twilio Verify
+    // Twilio handles rate limiting automatically
+    const sent = await resendVerificationSMS(currentUser.phoneNumber);
 
-    // Send SMS with new code
-    await sendVerificationSMS(currentUser.phoneNumber, phoneVerificationCode);
+    if (!sent) {
+      return NextResponse.json(
+        { error: "Failed to resend verification code" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
