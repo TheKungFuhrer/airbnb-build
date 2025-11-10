@@ -2,6 +2,7 @@
 
 import useVerifyPhoneModal from "@/hook/useVerifyPhoneModal";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -13,6 +14,7 @@ type Props = {};
 
 function VerifyPhoneModal({}: Props) {
   const verifyPhoneModal = useVerifyPhoneModal();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -35,6 +37,10 @@ function VerifyPhoneModal({}: Props) {
         toast.success("Phone number verified successfully!");
         verifyPhoneModal.onClose();
         reset();
+        // Refresh the page to show updated verification status
+        setTimeout(() => {
+          router.refresh();
+        }, 500); // Small delay to show success toast
       })
       .catch((err: any) => {
         console.error(err);
