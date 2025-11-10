@@ -41,6 +41,7 @@
     "react-world-flags": "^1.5.1",
     "stripe": "^19.2.0",
     "tailwind-scrollbar": "^3.0.0",
+    "twilio": "^5.10.4",
     "typescript": "5.0.3",
     "world-countries": "^4.0.0",
     "zustand": "^4.3.7"

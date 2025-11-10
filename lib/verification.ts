@@ -94,64 +94,80 @@ export async function verifyCode(
 }
 
 /**
- * Send verification email
- * This is a placeholder - you'll need to implement with your email service
- * Options: SendGrid, AWS SES, Resend, Mailgun, etc.
+ * Send verification email using Twilio Verify with SendGrid integration
  */
 export async function sendVerificationEmail(
   email: string,
   code: string
 ): Promise<boolean> {
-  console.log(`📧 Sending verification email to ${email} with code: ${code}`);
-  
-  // TODO: Implement with your email service
-  // Example with SendGrid:
-  /*
-  const sgMail = require('@sendgrid/mail');
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  
-  const msg = {
-    to: email,
-    from: 'verify@omg-rentals.com',
-    subject: 'Verify your OMG Rentals account',
-    text: `Your verification code is: ${code}`,
-    html: `<strong>Your verification code is: ${code}</strong>`,
-  };
-  
-  await sgMail.send(msg);
-  */
-  
-  // For development, just log it
-  return true;
+  try {
+    // Use Twilio Verify API which is integrated with SendGrid
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+
+    if (!accountSid || !authToken || !serviceSid) {
+      console.error("Missing Twilio credentials");
+      console.log(`📧 [DEV MODE] Would send email to ${email} with code: ${code}`);
+      return false;
+    }
+
+    const twilio = require("twilio");
+    const client = twilio(accountSid, authToken);
+
+    // Twilio Verify automatically sends the code using your SendGrid integration
+    await client.verify.v2
+      .services(serviceSid)
+      .verifications.create({
+        to: email,
+        channel: "email",
+        customCode: code,
+      });
+
+    console.log(`📧 Verification email sent to ${email}`);
+    return true;
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    console.log(`📧 [FALLBACK] Logging code for ${email}: ${code}`);
+    return false;
+  }
 }
 
 /**
- * Send verification SMS
- * This is a placeholder - you'll need to implement with your SMS service
- * Options: Twilio, AWS SNS, MessageBird, etc.
+ * Send verification SMS using Twilio Verify
  */
 export async function sendVerificationSMS(
   phoneNumber: string,
   code: string
 ): Promise<boolean> {
-  console.log(`📱 Sending verification SMS to ${phoneNumber} with code: ${code}`);
-  
-  // TODO: Implement with your SMS service
-  // Example with Twilio:
-  /*
-  const twilio = require('twilio');
-  const client = twilio(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-  );
-  
-  await client.messages.create({
-    body: `Your OMG Rentals verification code is: ${code}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phoneNumber,
-  });
-  */
-  
-  // For development, just log it
-  return true;
+  try {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+
+    if (!accountSid || !authToken || !serviceSid) {
+      console.error("Missing Twilio credentials");
+      console.log(`📱 [DEV MODE] Would send SMS to ${phoneNumber} with code: ${code}`);
+      return false;
+    }
+
+    const twilio = require("twilio");
+    const client = twilio(accountSid, authToken);
+
+    // Twilio Verify automatically sends the SMS
+    await client.verify.v2
+      .services(serviceSid)
+      .verifications.create({
+        to: phoneNumber,
+        channel: "sms",
+        customCode: code,
+      });
+
+    console.log(`📱 Verification SMS sent to ${phoneNumber}`);
+    return true;
+  } catch (error) {
+    console.error("Error sending verification SMS:", error);
+    console.log(`📱 [FALLBACK] Logging code for ${phoneNumber}: ${code}`);
+    return false;
+  }
 }
