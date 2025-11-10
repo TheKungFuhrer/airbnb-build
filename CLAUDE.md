@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 0 — Purpose
+
+These rules ensure maintainability, safety, and developer velocity.
+**MUST** rules are non-negotiable; **SHOULD** rules are strongly recommended.
+
+---
+
 ## Project Overview
 
 **OMG Rentals** - An event space rental marketplace built with Next.js 13. Users can book unique event spaces by the hour for photoshoots, meetings, parties, workshops, and more. This is a full-stack application with an hourly booking model (not nightly like traditional Airbnb).
@@ -188,3 +195,220 @@ Example: `app/api/listings/route.ts` POST handler creates new listings
 - Auto-deploy on push to main branch
 - Environment variables must be set in Vercel dashboard
 - Build command includes Prisma generation: `prisma generate && next build`
+
+---
+
+## Implementation Best Practices
+
+### 1 — Before Coding
+
+- **BP-1 (MUST)** Ask the user clarifying questions.
+- **BP-2 (SHOULD)** Draft and confirm an approach for complex work.
+- **BP-3 (SHOULD)** If ≥ 2 approaches exist, list clear pros and cons.
+
+### 2 — While Coding
+
+- **C-1 (SHOULD)** Follow TDD when appropriate: scaffold stub → write test → implement.
+- **C-2 (MUST)** Name functions with existing domain vocabulary for consistency (e.g., `listing`, `reservation`, `hourlyRate`).
+- **C-3 (SHOULD NOT)** Introduce classes when small testable functions suffice.
+- **C-4 (SHOULD)** Prefer simple, composable, testable functions.
+- **C-5 (MUST)** Prefer branded `type`s for IDs when type safety is critical:
+  ```ts
+  type UserId = Brand<string, 'UserId'>   // ✅ Good
+  type UserId = string                    // ❌ Bad
+  ```
+- **C-6 (MUST)** Use `import type { … }` for type-only imports.
+- **C-7 (SHOULD NOT)** Add comments except for critical caveats; rely on self-explanatory code.
+- **C-8 (SHOULD)** Default to `type`; use `interface` only when more readable or interface merging is required.
+- **C-9 (SHOULD NOT)** Extract a new function unless:
+  - It will be reused elsewhere
+  - It's the only way to unit-test otherwise untestable logic
+  - It drastically improves readability of an opaque block
+
+### 3 — Testing
+
+- **T-1 (SHOULD)** Colocate unit tests in `*.spec.ts` or `*.test.ts` in same directory as source file.
+- **T-2 (SHOULD)** For API changes, add/extend integration tests.
+- **T-3 (MUST)** ALWAYS separate pure-logic unit tests from DB-touching integration tests.
+- **T-4 (SHOULD)** Prefer integration tests over heavy mocking.
+- **T-5 (SHOULD)** Unit-test complex algorithms thoroughly.
+- **T-6 (SHOULD)** Test the entire structure in one assertion if possible:
+  ```ts
+  expect(result).toEqual([value]) // ✅ Good
+
+  expect(result).toHaveLength(1); // ❌ Bad
+  expect(result[0]).toBe(value);  // ❌ Bad
+  ```
+
+### 4 — Database
+
+- **D-1 (MUST)** Use Prisma client from `lib/prismadb.ts` singleton.
+- **D-2 (SHOULD)** Type database operations with proper Prisma types from `@prisma/client`.
+- **D-3 (MUST)** Handle Prisma errors gracefully in API routes.
+- **D-4 (SHOULD)** Use Prisma transactions for operations that need atomicity.
+
+### 5 — Code Organization
+
+- **O-1 (MUST)** Place reusable utilities in `lib/` directory.
+- **O-2 (MUST)** Place server actions in `app/actions/` directory.
+- **O-3 (MUST)** Place API routes in `app/api/[resource]/route.ts`.
+- **O-4 (MUST)** Place React hooks in `hook/` directory.
+- **O-5 (MUST)** Place reusable components in `components/` directory with appropriate subdirectory.
+
+### 6 — Tooling Gates
+
+- **G-1 (MUST)** `npm run lint` passes (ESLint for Next.js).
+- **G-2 (SHOULD)** Run `npx prettier --write .` before committing.
+- **G-3 (SHOULD)** Run `npm run build` to ensure TypeScript compilation succeeds.
+
+### 7 — Git
+
+- **GH-1 (MUST)** Use Conventional Commits format: https://www.conventionalcommits.org/en/v1.0.0
+- **GH-2 (SHOULD NOT)** Refer to Claude or Anthropic in commit messages.
+- **GH-3 (MUST)** Commit message structure:
+  ```
+  <type>[optional scope]: <description>
+  [optional body]
+  [optional footer(s)]
+  ```
+- **GH-4 (MUST)** Use appropriate commit types:
+  - `fix:` - patches a bug (PATCH in Semantic Versioning)
+  - `feat:` - introduces a new feature (MINOR in Semantic Versioning)
+  - `BREAKING CHANGE:` - introduces breaking changes (MAJOR in Semantic Versioning)
+  - Other types: `build:`, `chore:`, `ci:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:`
+
+---
+
+## Writing Functions Best Practices
+
+When evaluating whether a function you implemented is good or not, use this checklist:
+
+1. Can you read the function and HONESTLY easily follow what it's doing? If yes, then stop here.
+2. Does the function have very high cyclomatic complexity? (number of independent paths, or number of nested if-else). If it does, then it's probably sketchy.
+3. Are there any common data structures and algorithms that would make this function much easier to follow and more robust? Parsers, trees, stacks/queues, etc.
+4. Are there any unused parameters in the function?
+5. Are there any unnecessary type casts that can be moved to function arguments?
+6. Is the function easily testable without mocking core features (e.g., Prisma queries, Stripe calls)? If not, can this function be tested as part of an integration test?
+7. Does it have any hidden untested dependencies or any values that can be factored out into the arguments instead? Only care about non-trivial dependencies that can actually change or affect the function.
+8. Brainstorm 3 better function names and see if the current name is the best, consistent with rest of codebase.
+
+**IMPORTANT:** You SHOULD NOT refactor out a separate function unless there is a compelling need, such as:
+- The refactored function is used in more than one place
+- The refactored function is easily unit testable while the original function is not AND you can't test it any other way
+- The original function is extremely hard to follow and you resort to putting comments everywhere just to explain it
+
+---
+
+## Writing Tests Best Practices
+
+When evaluating whether a test you've implemented is good or not, use this checklist:
+
+1. **SHOULD** parameterize inputs; never embed unexplained literals such as `42` or `"foo"` directly in the test.
+2. **SHOULD NOT** add a test unless it can fail for a real defect. Trivial asserts (e.g., `expect(2).toBe(2)`) are forbidden.
+3. **SHOULD** ensure the test description states exactly what the final expect verifies. If the wording and assert don't align, rename or rewrite.
+4. **SHOULD** compare results to independent, pre-computed expectations or to properties of the domain, never to the function's output re-used as the oracle.
+5. **SHOULD** follow the same lint, type-safety, and style rules as production code.
+6. **SHOULD** express invariants or axioms (e.g., commutativity, idempotence, round-trip) rather than single hard-coded cases whenever practical.
+7. Unit tests for a function should be grouped under `describe(functionName, () => ...)`.
+8. Use `expect.any(...)` when testing for parameters that can be anything (e.g., variable ids).
+9. **ALWAYS** use strong assertions over weaker ones:
+   ```ts
+   expect(x).toEqual(1)                    // ✅ Good
+   expect(x).toBeGreaterThanOrEqual(1)     // ❌ Bad
+   ```
+10. **SHOULD** test edge cases, realistic input, unexpected input, and value boundaries.
+11. **SHOULD NOT** test conditions that are caught by the type checker.
+
+---
+
+## Remember Shortcuts
+
+Remember the following shortcuts which the user may invoke at any time.
+
+### QNEW
+
+When I type "qnew", this means:
+```
+Understand all BEST PRACTICES listed in CLAUDE.md.
+Your code SHOULD ALWAYS follow these best practices.
+```
+
+### QPLAN
+
+When I type "qplan", this means:
+```
+Analyze similar parts of the codebase and determine whether your plan:
+- Is consistent with rest of codebase
+- Introduces minimal changes
+- Reuses existing code
+```
+
+### QCODE
+
+When I type "qcode", this means:
+```
+Implement your plan and make sure your new tests pass.
+Always run tests to make sure you didn't break anything else.
+Always run npm run lint to ensure linting passes.
+Always run npm run build to ensure TypeScript compilation succeeds.
+```
+
+### QCHECK
+
+When I type "qcheck", this means:
+```
+You are a SKEPTICAL senior software engineer.
+Perform this analysis for every MAJOR code change you introduced (skip minor changes):
+
+1. CLAUDE.md checklist: Writing Functions Best Practices
+2. CLAUDE.md checklist: Writing Tests Best Practices
+3. CLAUDE.md checklist: Implementation Best Practices
+```
+
+### QCHECKF
+
+When I type "qcheckf", this means:
+```
+You are a SKEPTICAL senior software engineer.
+Perform this analysis for every MAJOR function you added or edited (skip minor changes):
+
+1. CLAUDE.md checklist: Writing Functions Best Practices
+```
+
+### QCHECKT
+
+When I type "qcheckt", this means:
+```
+You are a SKEPTICAL senior software engineer.
+Perform this analysis for every MAJOR test you added or edited (skip minor changes):
+
+1. CLAUDE.md checklist: Writing Tests Best Practices
+```
+
+### QUX
+
+When I type "qux", this means:
+```
+Imagine you are a human UX tester of the feature you implemented.
+Output a comprehensive list of scenarios you would test, sorted by highest priority.
+```
+
+### QGIT
+
+When I type "qgit", this means:
+```
+Add all changes to staging, create a commit, and push to remote.
+
+Follow this checklist for writing your commit message:
+- MUST use Conventional Commits format: https://www.conventionalcommits.org/en/v1.0.0
+- MUST NOT refer to Claude or Anthropic in the commit message
+- MUST structure commit message as follows:
+  <type>[optional scope]: <description>
+  [optional body]
+  [optional footer(s)]
+- Commit types:
+  - fix: patches a bug in the codebase (PATCH)
+  - feat: introduces a new feature (MINOR)
+  - BREAKING CHANGE: introduces breaking changes (MAJOR)
+  - Other: build:, chore:, ci:, docs:, style:, refactor:, perf:, test:
+```
