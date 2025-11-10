@@ -25,6 +25,10 @@ model User {
   phoneVerified  DateTime?
   businessName   String?       // For event planners/photographers
   jobTitle       String?       // User's job title
+  firstName      String?       // Host first name
+  lastName       String?       // Host last name
+  bio            String?       // Host bio
+  languages      String[]      @default(["English"]) // Languages spoken
   accounts       Account[]
   listings       Listing[]
   reservations   Reservation[]
@@ -57,44 +61,64 @@ model Listing {
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
   category           String        // photoshoot, meeting, party, workshop, popup, film_production
-  
+
   // Space Details
   squareFootage      Int?
   capacity           Int           // Maximum guest/attendee capacity
   roomCount          Int?          // Optional: number of rooms/areas
   bathroomCount      Int
-  
-  // Location
-  locationValue      String
-  address            String?
+  spaceTypes         String[]      @default([]) // Studio, Gallery, Loft, Warehouse, Rooftop, etc.
+
+  // Location - Enhanced with Google Places data
+  locationValue      String        // City/country identifier (backward compat)
+  address            String?       // Full street address
+  unit               String?       // Apartment/unit number
+  city               String?       // City name
+  state              String?       // State/province
+  zipCode            String?       // Postal code
+  latitude           Float?        // Precise latitude for map pin
+  longitude          Float?        // Precise longitude for map pin
   floor              String?
   accessInstructions String?
-  
-  // Pricing - HOURLY MODEL
+
+  // Pricing - HOURLY MODEL with day rates
   hourlyRate         Int           // Price per hour in cents
+  halfDayRate        Int?          // Half-day rate (4 hours)
+  fullDayRate        Int?          // Full-day rate (8+ hours)
   minimumHours       Int           @default(2) // Minimum booking duration
   cleaningFee        Int           @default(0)
-  
+
   // Event-Specific Amenities
   amenities          String[]      @default([]) // Array of amenity IDs/names
   lighting           String[]      @default([]) // natural_light, studio_lights, ring_lights, etc.
   equipment          String[]      @default([]) // projector, sound_system, whiteboard, etc.
   furniture          String[]      @default([]) // chairs, tables, couches, etc.
-  
+
   // Availability & Rules
   instantBook        Boolean       @default(false)
   sameDayBooking     Boolean       @default(true)
+  advanceNotice      String        @default("1_day") // same_day, 1_day, 2_days, 3_days, 1_week, 2_weeks
   turnaroundTime     Int           @default(2) // Hours between bookings for cleanup
   rules              String[]      @default([])
   allowedActivities  String[]      @default([]) // photography, filming, events, meetings
-  
+
+  // Cancellation Policy
+  cancellationPolicy String        @default("moderate") // flexible, moderate, strict
+
+  // House Rules
+  smokingAllowed     Boolean       @default(false)
+  petsAllowed        Boolean       @default(false)
+  alcoholAllowed     Boolean       @default(true)
+  childrenAllowed    Boolean       @default(true)
+  requiresInsurance  Boolean       @default(false)
+
   // Additional Features
   parking            String?       // street, garage, lot, none
   accessibility      Boolean       @default(false)
   wifiAvailable      Boolean       @default(true)
   kitchenAvailable   Boolean       @default(false)
   outdoorSpace       Boolean       @default(false)
-  
+
   userId             String        @db.ObjectId
   user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations       Reservation[]
