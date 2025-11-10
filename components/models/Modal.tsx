@@ -36,15 +36,12 @@ function Modal({
   }, [isOpen]);
 
   const handleClose = useCallback(() => {
-    if (disabled) {
-      return;
-    }
-
+    // Always allow closing via X button, regardless of disabled state
     setShowModal(false);
     setTimeout(() => {
       onClose();
     }, 300);
-  }, [disabled, onClose]);
+  }, [onClose]);
 
   const handleSubmit = useCallback(() => {
     if (disabled) {
