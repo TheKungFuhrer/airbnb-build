@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import {
+  generateVerificationCode,
+  storeVerificationCode,
+  sendVerificationSMS,
+} from "@/lib/verification";
 
 export async function POST(request: Request) {
   try {
@@ -12,11 +17,26 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!currentUser.phoneNumber) {
+      return NextResponse.json(
+        { error: "No phone number found" },
+        { status: 400 }
+      );
+    }
+
     // Generate new verification code
-    const phoneVerificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const phoneVerificationCode = generateVerificationCode();
     
-    // TODO: Store verification code in database
-    // TODO: Send SMS with new code
+    // Store verification code in database
+    await storeVerificationCode(
+      currentUser.phoneNumber,
+      phoneVerificationCode,
+      "phone",
+      currentUser.id
+    );
+
+    // Send SMS with new code
+    await sendVerificationSMS(currentUser.phoneNumber, phoneVerificationCode);
 
     return NextResponse.json({
       success: true,

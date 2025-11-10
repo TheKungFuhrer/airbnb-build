@@ -22,6 +22,7 @@ model User {
   favoriteIds    String[]      @db.ObjectId
   userType       String?       @default("guest") // guest, host, photographer, event_planner, meeting_organizer
   phoneNumber    String?
+  phoneVerified  DateTime?
   businessName   String?       // For event planners/photographers
   accounts       Account[]
   listings       Listing[]
@@ -153,4 +154,17 @@ model Availability {
   createdAt   DateTime @default(now())
   
   listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// Verification codes for email and phone
+model VerificationToken {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier  String   // email or phone number
+  token       String   // 4-digit code
+  type        String   // "email" or "phone"
+  userId      String?  @db.ObjectId
+  expires     DateTime
+  createdAt   DateTime @default(now())
+  
+  @@unique([identifier, type])
 }
