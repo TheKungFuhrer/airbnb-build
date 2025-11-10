@@ -25,9 +25,10 @@ function ImageUpload({ onChange, value }: Props) {
   return (
     <CldUploadWidget
       onUpload={handleCallback}
-      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cptcecyi"}
+      uploadPreset="cptcecyi"
       options={{
         maxFiles: 1,
+        sources: ['local', 'camera'],
       }}
     >
       {({ open }) => {
