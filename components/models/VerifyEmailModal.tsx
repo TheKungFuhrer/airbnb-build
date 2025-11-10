@@ -39,11 +39,7 @@ function VerifyEmailModal({ hasPhoneNumber = false }: Props) {
         toast.success("Email verified successfully!");
         verifyEmailModal.onClose();
         reset();
-        
-        // If user has phone number, open phone verification modal
-        if (hasPhoneNumber) {
-          verifyPhoneModal.onOpen();
-        }
+        // Phone verification will be prompted separately on profile page
       })
       .catch((err: any) => {
         console.error(err);

@@ -28,10 +28,10 @@ function ProfileClient({ currentUser }: Props) {
   } = useForm<FieldValues>({
     defaultValues: {
       firstName: currentUser?.name?.split(" ")[0] || "",
-      lastName: currentUser?.name?.split(" ")[1] || "",
+      lastName: currentUser?.name?.split(" ").slice(1).join(" ") || "",
       email: currentUser?.email || "",
-      phoneNumber: "",
-      companyName: "",
+      phoneNumber: currentUser?.phoneNumber || "",
+      companyName: currentUser?.businessName || "",
       jobTitle: "",
     },
   });
