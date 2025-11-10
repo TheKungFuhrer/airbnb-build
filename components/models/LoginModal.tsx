@@ -22,6 +22,7 @@ function LoginModal({}: Props) {
   const registerModel = useRegisterModal();
   const loginModel = useLoginModel();
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const {
     register,
@@ -36,6 +37,7 @@ function LoginModal({}: Props) {
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
+    setLoginError(""); // Clear previous error
 
     signIn("credentials", {
       ...data,
@@ -47,8 +49,9 @@ function LoginModal({}: Props) {
         toast.success("Login Successfully");
         router.refresh();
         loginModel.onClose();
+        setLoginError(""); // Clear error on success
       } else if (callback?.error) {
-        toast.error("Something Went Wrong");
+        setLoginError("We did not match that login. Please try again or sign up instead.");
       }
     });
   };
@@ -77,11 +80,32 @@ function LoginModal({}: Props) {
         errors={errors}
         required
       />
+      
+      {/* Login Error Message */}
+      {loginError && (
+        <p className="text-red-500 text-sm text-center -mt-2">
+          {loginError}
+        </p>
+      )}
     </div>
   );
 
   const footerContent = (
     <div className="flex flex-col gap-4 mt-3">
+      {/* Forgot Password Link */}
+      <div className="text-center -mt-2">
+        <button
+          type="button"
+          onClick={() => {
+            // TODO: Implement forgot password functionality
+            toast.info("Forgot password functionality coming soon");
+          }}
+          className="text-purple-600 hover:underline text-sm font-medium"
+        >
+          Forgot Password
+        </button>
+      </div>
+      
       <hr />
       <Button
         outline
@@ -98,12 +122,12 @@ function LoginModal({}: Props) {
       />
       <div className="text-neutral-500 text-center mt-4 font-light">
         <div>
-          {`Didn't have an Account?`}{" "}
+          Don&apos;t have an account?{" "}
           <span
             onClick={toggle}
-            className="text-neutral-800 cursor-pointer hover:underline"
+            className="text-neutral-800 cursor-pointer hover:underline font-medium"
           >
-            Create an Account
+            Sign Up
           </span>
         </div>
       </div>
