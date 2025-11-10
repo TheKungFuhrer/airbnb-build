@@ -65,7 +65,7 @@ function VerifyPhoneModal({}: Props) {
     <div className="flex flex-col gap-4">
       <Heading
         title="Verify your phone number"
-        subtitle="Please check your text messages and enter the 4 digit code below"
+        subtitle="Please check your text messages and enter the 6 digit code below"
         center
       />
 
@@ -74,16 +74,16 @@ function VerifyPhoneModal({}: Props) {
         <input
           id="code"
           type="text"
-          maxLength={4}
+          maxLength={6}
           disabled={isLoading}
           {...register("code", {
             required: "Verification code is required",
             pattern: {
-              value: /^\d{4}$/,
-              message: "Please enter a valid 4-digit code",
+              value: /^\d{6}$/,
+              message: "Please enter a valid 6-digit code",
             },
           })}
-          placeholder="XXXX"
+          placeholder="XXXXXX"
           className={`peer w-full p-4 text-center text-2xl tracking-widest font-light bg-white border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed ${
             errors.code ? "border-red-500" : "border-neutral-300"
           } ${errors.code ? "focus:border-red-500" : "focus:border-black"}`}
