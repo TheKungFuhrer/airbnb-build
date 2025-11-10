@@ -11,6 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
 
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Button from "../Button";
 import Heading from "../Heading";
 import Input from "../inputs/Input";
@@ -19,6 +20,7 @@ import Modal from "./Modal";
 type Props = {};
 
 function RegisterModal({}: Props) {
+  const router = useRouter();
   const registerModel = useRegisterModal();
   const loginModel = useLoginModel();
   const completeProfileModal = useCompleteProfileModal();
@@ -45,10 +47,26 @@ function RegisterModal({}: Props) {
     axios
       .post("/api/register", data)
       .then(() => {
-        toast.success("Account created successfully!");
-        registerModel.onClose();
-        completeProfileModal.onOpen();
-        setRegisterError("");
+        // Account created successfully, now log the user in
+        const { email, password } = data;
+        
+        signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        }).then((callback) => {
+          if (callback?.ok) {
+            toast.success("Account created successfully!");
+            router.refresh(); // Refresh to update session
+            registerModel.onClose();
+            completeProfileModal.onOpen();
+            setRegisterError("");
+          } else {
+            toast.error("Account created but login failed. Please log in manually.");
+            registerModel.onClose();
+            loginModel.onOpen();
+          }
+        });
       })
       .catch((err: any) => {
         // Check if user already exists
@@ -63,6 +81,7 @@ function RegisterModal({}: Props) {
           }).then((callback) => {
             if (callback?.ok) {
               toast.success("Logged in successfully!");
+              router.refresh();
               registerModel.onClose();
               setRegisterError("");
             } else {

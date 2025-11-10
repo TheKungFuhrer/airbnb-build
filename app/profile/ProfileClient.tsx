@@ -111,9 +111,10 @@ function ProfileClient({ currentUser }: Props) {
                 )}
                 <CldUploadWidget
                   onUpload={handleUpload}
-                  uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cptcecyi"}
+                  uploadPreset="cptcecyi"
                   options={{
                     maxFiles: 1,
+                    sources: ['local', 'camera'],
                   }}
                 >
                   {({ open }) => {
